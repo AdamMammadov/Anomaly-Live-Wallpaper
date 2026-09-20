@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mystic Portal Live Wallpaper</title>
+
+<style>
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+body {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: none;
+    font-family: Arial, sans-serif;
+}
+
+#scene {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(255, 116, 20, 0.045) 0%,
+            rgba(255, 92, 8, 0.022) 12%,
+            rgba(0, 0, 0, 0) 42%
+        ),
+        #000;
+}
+
+#camera {
+    position: absolute;
+    inset: 0;
+    transform: translate3d(0,0,0) scale(1);
+    will-change: transform;
+}
+
+#portal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(58vw, 700px);
+    height: min(58vw, 700px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.portal-ring {
+    position: absolute;
+    inset: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.ring-outer {
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255, 132, 35, 0.075);
+    box-shadow:
+        0 0 18px rgba(255, 110, 15, 0.035),
+        inset 0 0 18px rgba(255, 110, 15, 0.025);
+    animation: rotateSlow 42s linear infinite;
+}
+
+.ring-mid {
+    width: 82%;
+    height: 82%;
+    border: 1px solid rgba(255, 188, 110, 0.055);
+    border-left-color: rgba(255, 156, 50, 0.16);
+    border-right-color: rgba(255, 156, 50, 0.10);
+    box-shadow:
+        0 0 22px rgba(255, 125, 30, 0.04),
+        inset 0 0 22px rgba(255, 125, 30, 0.02);
+    animation: rotateReverse 28s linear infinite;
+}
+
+.ring-inner {
+    width: 64%;
+    height: 64%;
+    border: 1px dashed rgba(255, 191, 130, 0.055);
+    box-shadow:
+        0 0 30px rgba(255, 123, 20, 0.04),
+        inset 0 0 30px rgba(255, 123, 20, 0.03);
+    animation: rotateSlow 19s linear infinite;
+}
+
+.ring-core {
+    width: 41%;
+    height: 41%;
+    border: 1px solid rgba(255, 127, 20, 0.075);
+    box-shadow:
+        0 0 35px rgba(255, 90, 0, 0.055),
+        inset 0 0 28px rgba(255, 102, 0, 0.045);
+    animation: breatheRing 4.5s ease-in-out infinite;
+}
+
+@keyframes rotateSlow {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes rotateReverse {
+    from {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+}
+
+@keyframes breatheRing {
+    0%,100% {
+        transform: translate(-50%, -50%) scale(.96);
+        opacity: .55;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.04);
+        opacity: 1;
+    }
+}
+
+#energy {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(28vw, 360px);
+    height: min(28vw, 360px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,255,255,.055) 0%,
+            rgba(255,205,145,.04) 10%,
+            rgba(255,128,20,.028) 24%,
+            rgba(255,80,0,0) 68%
+        );
+    filter: blur(4px);
+    animation: energyPulse 3.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes energyPulse {
+    0%,100% {
+        transform: translate(-50%, -50%) scale(.82);
+        opacity: .35;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.12);
+        opacity: .9;
+    }
+}
+
+#shockwave {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 90px;
+    height: 90px;
+    transform: translate(-50%, -50%) scale(.1);
+    border-radius: 50%;
+    border: 1px solid rgba(255,173,90,.5);
+    box-shadow:
+        0 0 15px rgba(255,109,12,.35),
+        inset 0 0 15px rgba(255,150,60,.2);
+    opacity: 0;
+    pointer-events: none;
+}
+
+#shockwave.active {
+    animation: shockwave 2s ease-out forwards;
+}
+
+@keyframes shockwave {
+    0% {
+        transform: translate(-50%, -50%) scale(.1);
+        opacity: .7;
+    }
+
+    45% {
+        opacity: .3;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(7);
+        opacity: 0;
+    }
+}
+
+#rune {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(23vw, 290px);
+    height: min(23vw, 290px);
+    min-width: 155px;
+    min-height: 155px;
+    max-width: 290px;
+    max-height: 290px;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    will-change: opacity, transform, filter;
+}
+
+#rune svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.rune-path {
+    fill: none;
+    stroke: url(#dynamicGlow);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.rune-thin {
+    fill: none;
+    stroke: #fff8ee;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.rune-orange {
+    fill: none;
+    stroke: #ff861b;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.rune-solid {
+    fill: #fffaf2;
+}
+
+#rune.animate {
+    animation: runeLife 2s cubic-bezier(.22,.8,.22,1) forwards;
+}
+
+@keyframes runeLife {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.78) rotate(-5deg);
+        filter:
+            drop-shadow(0 0 0 rgba(255,255,255,0))
+            drop-shadow(0 0 0 rgba(255,110,0,0));
+    }
+
+    15% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        filter:
+            drop-shadow(0 0 4px rgba(255,255,255,1))
+            drop-shadow(0 0 10px rgba(255,237,210,.95))
+            drop-shadow(0 0 22px rgba(255,155,45,.9))
+            drop-shadow(0 0 45px rgba(255,85,0,.65));
+    }
+
+    67% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        filter:
+            drop-shadow(0 0 5px rgba(255,255,255,1))
+            drop-shadow(0 0 11px rgba(255,231,195,1))
+            drop-shadow(0 0 25px rgba(255,145,35,.95))
+            drop-shadow(0 0 52px rgba(255,76,0,.68));
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.08) rotate(4deg);
+        filter:
+            drop-shadow(0 0 0 rgba(255,255,255,0))
+            drop-shadow(0 0 0 rgba(255,110,0,0));
+    }
+}
+
+#glyphs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(53vw, 640px);
+    height: min(53vw, 640px);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 4;
+    animation: glyphRotation 70s linear infinite;
+}
+
+@keyframes glyphRotation {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.glyph {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-origin: center;
+    color: rgba(255,210,170,.10);
+    font-family: Georgia, serif;
+    font-size: clamp(14px, 1.5vw, 22px);
+    text-shadow:
+        0 0 4px rgba(255,255,255,.10),
+        0 0 12px rgba(255,110,0,.10);
+    opacity: .35;
+}
+
+#particles {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: rgba(255,210,160,.5);
+    box-shadow:
+        0 0 5px rgba(255,160,60,.45),
+        0 0 11px rgba(255,100,20,.20);
+    animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translate3d(0,0,0) scale(.4);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: .6;
+    }
+
+    50% {
+        opacity: .25;
+    }
+
+    85% {
+        opacity: .5;
+    }
+
+    100% {
+        transform: translate3d(var(--dx),var(--dy),0) scale(1.2);
+        opacity: 0;
+    }
+}
+
+#dust {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.03) 0 1px, transparent 1px),
+        radial-gradient(circle at 70% 60%, rgba(255,160,70,.025) 0 1px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(255,255,255,.02) 0 1px, transparent 1px);
+    background-size: 170px 170px, 240px 240px, 310px 310px;
+    animation: dustShift 30s linear infinite;
+    opacity: .55;
+}
+
+@keyframes dustShift {
+    from {
+        transform: translate(0,0);
+    }
+
+    to {
+        transform: translate(-80px,50px);
+    }
+}
+
+#vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 35%,
+            rgba(0,0,0,.18) 61%,
+            rgba(0,0,0,.48) 100%
+        );
+}
+
+#scan {
+    position: absolute;
+    inset: 0;
+    z-index: 21;
+    pointer-events: none;
+    opacity: .035;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 3px,
+            rgba(255,180,100,.15) 4px
+        );
+    mix-blend-mode: screen;
+}
+
+@media (max-width: 600px) {
+    #rune {
+        width: 56vw;
+        height: 56vw;
+    }
+
+    #portal {
+        width: 90vw;
+        height: 90vw;
+    }
+
+    #glyphs {
+        width: 86vw;
+        height: 86vw;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="scene">
+    <div id="camera">
+
+        <div id="portal">
+            <div class="portal-ring ring-outer"></div>
+            <div class="portal-ring ring-mid"></div>
+            <div class="portal-ring ring-inner"></div>
+            <div class="portal-ring ring-core"></div>
+        </div>
+
+        <div id="energy"></div>
+        <div id="shockwave"></div>
+
+        <div id="glyphs"></div>
+        <div id="particles"></div>
+        <div id="dust"></div>
+
+        <div id="rune"></div>
+
+    </div>
+
+    <div id="vignette"></div>
+    <div id="scan"></div>
+</div>
+
+<script>
+const runes = [
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".48" stop-color="#ffe0bd"/><stop offset="1" stop-color="#ff6b0c"/></linearGradient></defs>
+<path class="rune-path" d="M110 18V202M76 46L110 18L144 46M76 174L110 202L144 174M60 82L110 110L160 82M60 138L110 110L160 138"/>
+<circle class="rune-thin" cx="110" cy="110" r="19"/>
+<path class="rune-orange" d="M95 110H125M110 95V125"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff7210"/><stop offset=".5" stop-color="#ffd49e"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M42 40H178L110 110L178 180H42L110 110Z"/>
+<path class="rune-thin" d="M72 67H148M72 153H148M110 40V180"/>
+<circle class="rune-solid" cx="110" cy="110" r="7"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".5" stop-color="#ffd5a2"/><stop offset="1" stop-color="#ff7411"/></linearGradient></defs>
+<path class="rune-path" d="M54 175L88 45L110 75L132 45L166 175M74 120H146M89 91H131"/>
+<path class="rune-thin" d="M67 175H153"/>
+<circle class="rune-orange" cx="110" cy="143" r="17"/>
+<path class="rune-solid" d="M110 132L117 143L110 154L103 143Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".52" stop-color="#ffe0bc"/><stop offset="1" stop-color="#ff7614"/></linearGradient></defs>
+<path class="rune-path" d="M38 78L74 48L110 78L146 48L182 78M58 78V155M94 78V174M130 78V174M166 78V155"/>
+<path class="rune-thin" d="M58 155L94 174L130 174L166 155M74 48V26M146 48V26"/>
+<circle class="rune-solid" cx="74" cy="48" r="6"/>
+<circle class="rune-solid" cx="146" cy="48" r="6"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".45" stop-color="#ffcf98"/><stop offset="1" stop-color="#ff6510"/></linearGradient></defs>
+<path class="rune-path" d="M110 28L173 73L149 148L110 192L71 148L47 73Z"/>
+<path class="rune-thin" d="M110 28V192M47 73L173 73M71 148L149 148"/>
+<path class="rune-orange" d="M85 88L110 68L135 88L110 110Z"/>
+<path class="rune-orange" d="M85 132L110 152L135 132L110 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6c0d"/><stop offset=".5" stop-color="#ffd5a5"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M58 178V66L110 33L162 66V178M58 102H162M76 80L110 60L144 80"/>
+<path class="rune-thin" d="M84 178V128H136V178M110 33V178"/>
+<circle class="rune-solid" cx="110" cy="102" r="8"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".48" stop-color="#ffddb9"/><stop offset="1" stop-color="#ff7012"/></linearGradient></defs>
+<path class="rune-path" d="M110 24L126 78L180 93L126 108L110 180L94 108L40 93L94 78Z"/>
+<circle class="rune-thin" cx="110" cy="93" r="24"/>
+<path class="rune-orange" d="M110 69V117M86 93H134"/>
+<circle class="rune-solid" cx="110" cy="93" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6b0b"/><stop offset=".5" stop-color="#ffd8ae"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M54 50L110 28L166 50L150 110L166 170L110 192L54 170L70 110Z"/>
+<path class="rune-thin" d="M54 50L110 110L166 50M54 170L110 110L166 170M70 110H150"/>
+<path class="rune-orange" d="M92 72L128 72L140 110L128 148H92L80 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".5" stop-color="#ffe0c1"/><stop offset="1" stop-color="#ff6e10"/></linearGradient></defs>
+<path class="rune-path" d="M70 32H150L174 110L150 188H70L46 110Z"/>
+<path class="rune-thin" d="M70 32L110 76L150 32M70 188L110 144L150 188M46 110H174"/>
+<circle class="rune-orange" cx="110" cy="110" r="14"/>
+<path class="rune-solid" d="M110 99L121 110L110 121L99 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".45" stop-color="#ffd09b"/><stop offset="1" stop-color="#ff670d"/></linearGradient></defs>
+<path class="rune-path" d="M42 154L73 123L52 91L89 85L79 48L110 69L141 48L131 85L168 91L147 123L178 154L137 151L110 180L83 151Z"/>
+<circle class="rune-thin" cx="110" cy="111" r="26"/>
+<path class="rune-orange" d="M98 111H122M110 99V123"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6a0b"/><stop offset=".5" stop-color="#ffdcb3"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M110 25V195M45 60L175 160M175 60L45 160M65 28L155 192M155 28L65 192"/>
+<path class="rune-thin" d="M82 48L138 172M138 48L82 172"/>
+<circle class="rune-solid" cx="110" cy="25" r="5"/>
+<circle class="rune-solid" cx="110" cy="195" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".52" stop-color="#ffdcaf"/><stop offset="1" stop-color="#ff6710"/></linearGradient></defs>
+<path class="rune-path" d="M48 48L110 84L172 48M48 172L110 136L172 172M62 62L110 110L158 62M62 158L110 110L158 158"/>
+<circle class="rune-thin" cx="110" cy="110" r="22"/>
+<path class="rune-orange" d="M110 79V141M79 110H141"/>
+<circle class="rune-solid" cx="110" cy="110" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff7010"/><stop offset=".5" stop-color="#ffd8ad"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M110 32C65 32 42 64 42 110S65 188 110 188 178 156 178 110 155 32 110 32Z"/>
+<path class="rune-thin" d="M68 110H152M110 64V156"/>
+<path class="rune-orange" d="M92 92L128 92L128 128L92 128Z"/>
+<path class="rune-solid" d="M110 94L126 110L110 126L94 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".5" stop-color="#ffd0a0"/><stop offset="1" stop-color="#ff650b"/></linearGradient></defs>
+<path class="rune-path" d="M55 170L82 54L110 93L138 54L165 170M70 135L150 135M80 93H140"/>
+<path class="rune-thin" d="M55 170H165"/>
+<path class="rune-orange" d="M97 148L110 130L123 148L110 166Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6910"/><stop offset=".5" stop-color="#ffd9ab"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M110 28L162 54V110L138 162L110 192L82 162L58 110V54Z"/>
+<path class="rune-thin" d="M58 54L110 78L162 54M58 110H162M82 162L110 140L138 162"/>
+<circle class="rune-orange" cx="110" cy="110" r="18"/>
+<path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".5" stop-color="#ffdbb7"/><stop offset="1" stop-color="#ff6d10"/></linearGradient></defs>
+<path class="rune-path" d="M44 70L86 42L110 72L134 42L176 70L145 103L168 143L110 178L52 143L75 103Z"/>
+<path class="rune-thin" d="M86 42L110 110L134 42M75 103L145 103M52 143L110 110L168 143"/>
+<path class="rune-orange" d="M98 110L110 98L122 110L110 122Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".45" stop-color="#ffcf9b"/><stop offset="1" stop-color="#ff650b"/></linearGradient></defs>
+<path class="rune-path" d="M110 24L150 48L174 88L174 132L150 172L110 196L70 172L46 132L46 88L70 48Z"/>
+<circle class="rune-thin" cx="110" cy="110" r="44"/>
+<path class="rune-orange" d="M110 66V154M66 110H154M79 79L141 141M141 79L79 141"/>
+<circle class="rune-solid" cx="110" cy="110" r="6"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6b0a"/><stop offset=".5" stop-color="#ffd5a4"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M62 182V60L110 30L158 60V182M82 182V94L110 76L138 94V182"/>
+<path class="rune-thin" d="M62 116H158M82 140H138"/>
+<path class="rune-orange" d="M92 116L110 98L128 116L110 134Z"/>
+<circle class="rune-solid" cx="110" cy="116" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".48" stop-color="#ffdab0"/><stop offset="1" stop-color="#ff6810"/></linearGradient></defs>
+<path class="rune-path" d="M40 110L70 82L58 46L102 58L110 24L118 58L162 46L150 82L180 110L150 138L162 174L118 162L110 196L102 162L58 174L70 138Z"/>
+<circle class="rune-thin" cx="110" cy="110" r="29"/>
+<path class="rune-orange" d="M110 81V139M81 110H139"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6b0c"/><stop offset=".52" stop-color="#ffd8ad"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M44 46L77 110L44 174H176L143 110L176 46Z"/>
+<path class="rune-thin" d="M77 110H143M110 46V174"/>
+<circle class="rune-orange" cx="110" cy="110" r="25"/>
+<path class="rune-solid" d="M110 95L125 110L110 125L95 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".5" stop-color="#ffddbc"/><stop offset="1" stop-color="#ff670c"/></linearGradient></defs>
+<path class="rune-path" d="M110 25L128 60L170 68L140 98L147 140L110 120L73 140L80 98L50 68L92 60Z"/>
+<path class="rune-thin" d="M110 120V190M77 171H143M82 153H138"/>
+<circle class="rune-orange" cx="110" cy="92" r="17"/>
+<path class="rune-solid" d="M110 82L120 92L110 102L100 92Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6509"/><stop offset=".5" stop-color="#ffd6a8"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M52 40L84 70L110 34L136 70L168 40L158 91L186 110L158 129L168 180L136 150L110 186L84 150L52 180L62 129L34 110L62 91Z"/>
+<circle class="rune-orange" cx="110" cy="110" r="20"/>
+<path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ffffff"/><stop offset=".5" stop-color="#ffdfbc"/><stop offset="1" stop-color="#ff6b0e"/></linearGradient></defs>
+<path class="rune-path" d="M110 28L170 110L110 192L50 110Z"/>
+<path class="rune-thin" d="M110 28V192M50 110H170M75 76L145 144M145 76L75 144"/>
+<path class="rune-orange" d="M96 96L110 82L124 96L110 110L124 124L110 138L96 124L110 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="dynamicGlow"><stop stop-color="#ff6b0d"/><stop offset=".5" stop-color="#ffd8ab"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>
+<path class="rune-path" d="M54 58L110 30L166 58V162L110 190L54 162Z"/>
+<path class="rune-thin" d="M54 58L110 88L166 58M54 162L110 132L166 162M110 30V190"/>
+<path class="rune-orange" d="M92 92H128L142 110L128 128H92L78 110Z"/>
+<circle class="rune-solid" cx="110" cy="110" r="5"/>
+</svg>`
+
+];
+
+const rune = document.getElementById("rune");
+const shockwave = document.getElementById("shockwave");
+const glyphs = document.getElementById("glyphs");
+const particles = document.getElementById("particles");
+const camera = document.getElementById("camera");
+
+let runeIndex = 0;
+
+const glyphSet = [
+    "ᚦ","ᚨ","ᛉ","ᛟ","ᚱ","ᚲ","ᛏ","ᚹ",
+    "ϟ","Ψ","Ж","Ȝ","Ƶ","ƛ","⟐","⟁",
+    "⟡","◈","⊙","⌁","⋔","ᛝ","ᚾ","ᛒ"
+];
+
+glyphSet.forEach((char, i) => {
+    const el = document.createElement("div");
+    el.className = "glyph";
+    el.textContent = char;
+
+    const angle = i * (360 / glyphSet.length);
+    const radius = 47 + (i % 3) * 2.2;
+
+    el.style.transform =
+        `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}%) rotate(${-angle}deg)`;
+
+    el.style.opacity = (0.14 + (i % 4) * 0.035).toFixed(2);
+    glyphs.appendChild(el);
+});
+
+for (let i = 0; i < 90; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+
+    const dx = (Math.random() * 160 - 80).toFixed(1);
+    const dy = (Math.random() * -180 - 25).toFixed(1);
+
+    p.style.left = x + "%";
+    p.style.top = y + "%";
+    p.style.setProperty("--dx", dx + "px");
+    p.style.setProperty("--dy", dy + "px");
+    p.style.animationDuration = (4 + Math.random() * 10).toFixed(2) + "s";
+    p.style.animationDelay = (-Math.random() * 12).toFixed(2) + "s";
+
+    const size = (Math.random() * 2.2 + .7).toFixed(2);
+    p.style.width = size + "px";
+    p.style.height = size + "px";
+
+    particles.appendChild(p);
+}
+
+function showRune() {
+    rune.classList.remove("animate");
+    void rune.offsetWidth;
+
+    rune.innerHTML = runes[runeIndex];
+    rune.classList.add("animate");
+
+    shockwave.classList.remove("active");
+    void shockwave.offsetWidth;
+    shockwave.classList.add("active");
+
+    runeIndex = (runeIndex + 1) % runes.length;
+}
+
+showRune();
+setInterval(showRune, 2000);
+
+let mouseX = 0;
+let mouseY = 0;
+let targetX = 0;
+let targetY = 0;
+
+window.addEventListener("mousemove", e => {
+    targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+    targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+function animateCamera() {
+    mouseX += (targetX - mouseX) * 0.025;
+    mouseY += (targetY - mouseY) * 0.025;
+
+    const t = performance.now() * 0.00025;
+
+    const driftX = Math.sin(t) * 2.2;
+    const driftY = Math.cos(t * 1.13) * 2.2;
+
+    const x = driftX + mouseX * 3;
+    const y = driftY + mouseY * 3;
+
+    const scale = 1.005 + Math.sin(t * .7) * 0.002;
+
+    camera.style.transform =
+        `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+
+    requestAnimationFrame(animateCamera);
+}
+
+animateCamera();
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        camera.style.animationPlayState = "paused";
+    }
+});
+
+window.addEventListener("resize", () => {
+    camera.style.transform = "translate3d(0,0,0) scale(1)";
+});
+</script>
+
+</body>
+</html>
