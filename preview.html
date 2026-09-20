@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Runes Live Wallpaper</title>
+<style>
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: none;
+}
+
+#scene {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at center,
+            rgba(255, 130, 30, 0.025) 0%,
+            rgba(255, 90, 0, 0.012) 15%,
+            rgba(0, 0, 0, 0) 42%),
+        #000;
+}
+
+#rune {
+    width: min(24vw, 300px);
+    height: min(24vw, 300px);
+    min-width: 150px;
+    min-height: 150px;
+    max-width: 300px;
+    max-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    filter:
+        drop-shadow(0 0 5px rgba(255,255,255,.95))
+        drop-shadow(0 0 12px rgba(255,220,160,.95))
+        drop-shadow(0 0 24px rgba(255,150,40,.9))
+        drop-shadow(0 0 46px rgba(255,90,0,.55));
+    will-change: transform, filter, opacity;
+}
+
+#rune svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+#rune svg * {
+    vector-effect: non-scaling-stroke;
+}
+
+#rune.animate {
+    animation: runeCycle 2s ease-in-out forwards;
+}
+
+@keyframes runeCycle {
+    0% {
+        opacity: 0;
+        transform: scale(.88) rotate(-3deg);
+        filter:
+            drop-shadow(0 0 0 rgba(255,255,255,0))
+            drop-shadow(0 0 0 rgba(255,150,40,0));
+    }
+
+    17% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+        filter:
+            drop-shadow(0 0 5px rgba(255,255,255,1))
+            drop-shadow(0 0 12px rgba(255,220,160,1))
+            drop-shadow(0 0 24px rgba(255,150,40,.95))
+            drop-shadow(0 0 46px rgba(255,90,0,.65));
+    }
+
+    72% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+        filter:
+            drop-shadow(0 0 5px rgba(255,255,255,1))
+            drop-shadow(0 0 12px rgba(255,220,160,1))
+            drop-shadow(0 0 24px rgba(255,150,40,.95))
+            drop-shadow(0 0 46px rgba(255,90,0,.65));
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.08) rotate(3deg);
+        filter:
+            drop-shadow(0 0 0 rgba(255,255,255,0))
+            drop-shadow(0 0 0 rgba(255,150,40,0));
+    }
+}
+
+#pulse {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(38vw, 500px);
+    height: min(38vw, 500px);
+    min-width: 240px;
+    min-height: 240px;
+    max-width: 500px;
+    max-height: 500px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+        circle,
+        rgba(255, 190, 90, .045) 0%,
+        rgba(255, 120, 30, .022) 25%,
+        rgba(255, 80, 0, 0) 68%
+    );
+    animation: ambientPulse 4s ease-in-out infinite;
+}
+
+@keyframes ambientPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(.82);
+        opacity: .25;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: .55;
+    }
+}
+
+.rune-path {
+    stroke: url(#glowGradient);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+.rune-thin {
+    stroke: #fff7ed;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+.rune-solid {
+    fill: #fffaf3;
+    stroke: none;
+}
+
+.rune-orange {
+    stroke: #ff8a1c;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+@media (max-width: 600px) {
+    #rune {
+        width: 58vw;
+        height: 58vw;
+    }
+
+    #pulse {
+        width: 82vw;
+        height: 82vw;
+    }
+}
+</style>
+</head>
+<body>
+<div id="scene">
+    <div id="pulse"></div>
+    <div id="rune"></div>
+</div>
+
+<script>
+const runes = [
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd6a0"/><stop offset="1" stop-color="#ff7410"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g1)" d="M110 18V202M76 46L110 18L144 46M76 174L110 202L144 174M60 82L110 110L160 82M60 138L110 110L160 138"/>
+<circle class="rune-thin" cx="110" cy="110" r="19"/>
+<path class="rune-orange" d="M95 110H125M110 95V125"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#ff6a00"/><stop offset=".5" stop-color="#ffd39a"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g2)" d="M42 40H178L110 110L178 180H42L110 110Z"/>
+<path class="rune-thin" d="M72 67H148M72 153H148M110 40V180"/>
+<circle class="rune-solid" cx="110" cy="110" r="7"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g3"><stop stop-color="#fff"/><stop offset=".45" stop-color="#ffe7cb"/><stop offset="1" stop-color="#ff7818"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g3)" d="M54 175L88 45L110 75L132 45L166 175M74 120H146M89 91H131"/>
+<path class="rune-thin" d="M67 175H153"/>
+<circle class="rune-orange" cx="110" cy="143" r="17"/>
+<path class="rune-solid" d="M110 132L117 143L110 154L103 143Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff7919"/><stop offset=".5" stop-color="#ffe5c5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g4)" d="M38 78L74 48L110 78L146 48L182 78M58 78V155M94 78V174M130 78V174M166 78V155"/>
+<path class="rune-thin" d="M58 155L94 174L130 174L166 155M74 48V26M146 48V26"/>
+<circle class="rune-solid" cx="74" cy="48" r="6"/>
+<circle class="rune-solid" cx="146" cy="48" r="6"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g5"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffc98d"/><stop offset="1" stop-color="#ff6b00"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g5)" d="M110 28L173 73L149 148L110 192L71 148L47 73Z"/>
+<path class="rune-thin" d="M110 28V192M47 73L173 73M71 148L149 148"/>
+<path class="rune-orange" d="M85 88L110 68L135 88L110 110Z"/>
+<path class="rune-orange" d="M85 132L110 152L135 132L110 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g6" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#ff6811"/><stop offset=".48" stop-color="#ffcf99"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g6)" d="M58 178V66L110 33L162 66V178M58 102H162M76 80L110 60L144 80"/>
+<path class="rune-thin" d="M84 178V128H136V178M110 33V178"/>
+<circle class="rune-solid" cx="110" cy="102" r="8"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g7"><stop stop-color="#fff"/><stop offset=".55" stop-color="#ffe2bc"/><stop offset="1" stop-color="#ff7411"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g7)" d="M110 24L126 78L180 93L126 108L110 180L94 108L40 93L94 78Z"/>
+<circle class="rune-orange" cx="110" cy="93" r="24"/>
+<path class="rune-thin" d="M110 69V117M86 93H134"/>
+<circle class="rune-solid" cx="110" cy="93" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g8" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#ff690d"/><stop offset=".5" stop-color="#ffd9aa"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g8)" d="M54 50L110 28L166 50L150 110L166 170L110 192L54 170L70 110Z"/>
+<path class="rune-thin" d="M54 50L110 110L166 50M54 170L110 110L166 170M70 110H150"/>
+<path class="rune-orange" d="M92 72L128 72L140 110L128 148H92L80 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g9"><stop stop-color="#fff"/><stop offset=".45" stop-color="#ffdaa9"/><stop offset="1" stop-color="#ff6500"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g9)" d="M70 32H150L174 110L150 188H70L46 110Z"/>
+<path class="rune-thin" d="M70 32L110 76L150 32M70 188L110 144L150 188M46 110H174"/>
+<circle class="rune-orange" cx="110" cy="110" r="14"/>
+<path class="rune-solid" d="M110 99L121 110L110 121L99 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g10" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".6" stop-color="#ffd09c"/><stop offset="1" stop-color="#ff7110"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g10)" d="M42 154L73 123L52 91L89 85L79 48L110 69L141 48L131 85L168 91L147 123L178 154L137 151L110 180L83 151Z"/>
+<circle class="rune-thin" cx="110" cy="111" r="26"/>
+<path class="rune-orange" d="M98 111H122M110 99V123"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g11" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#ff700f"/><stop offset=".55" stop-color="#ffd7a7"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g11)" d="M110 25V195M45 60L175 160M175 60L45 160M65 28L155 192M155 28L65 192"/>
+<path class="rune-thin" d="M82 48L138 172M138 48L82 172"/>
+<circle class="rune-solid" cx="110" cy="25" r="5"/>
+<circle class="rune-solid" cx="110" cy="195" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g12"><stop stop-color="#fff"/><stop offset=".52" stop-color="#ffe0ba"/><stop offset="1" stop-color="#ff6f0c"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g12)" d="M48 48L110 84L172 48M48 172L110 136L172 172M62 62L110 110L158 62M62 158L110 110L158 158"/>
+<circle class="rune-thin" cx="110" cy="110" r="22"/>
+<path class="rune-orange" d="M110 79V141M79 110H141"/>
+<circle class="rune-solid" cx="110" cy="110" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g13" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#ff720f"/><stop offset=".48" stop-color="#ffe1bd"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g13)" d="M110 32C65 32 42 64 42 110S65 188 110 188 178 156 178 110 155 32 110 32Z"/>
+<path class="rune-thin" d="M68 110H152M110 64V156"/>
+<path class="rune-orange" d="M92 92L128 92L128 128L92 128Z"/>
+<path class="rune-solid" d="M110 94L126 110L110 126L94 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g14"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd0a0"/><stop offset="1" stop-color="#ff6710"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g14)" d="M55 170L82 54L110 93L138 54L165 170M70 135L150 135M80 93H140"/>
+<path class="rune-thin" d="M55 170H165"/>
+<path class="rune-orange" d="M97 148L110 130L123 148L110 166Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g15" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff7612"/><stop offset=".5" stop-color="#ffd8ad"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g15)" d="M110 28L162 54V110L138 162L110 192L82 162L58 110V54Z"/>
+<path class="rune-thin" d="M58 54L110 78L162 54M58 110H162M82 162L110 140L138 162"/>
+<circle class="rune-orange" cx="110" cy="110" r="18"/>
+<path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g16" x1="1" y1="1" x2="0" y2="0"><stop stop-color="#fff"/><stop offset=".55" stop-color="#ffdfbb"/><stop offset="1" stop-color="#ff6910"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g16)" d="M44 70L86 42L110 72L134 42L176 70L145 103L168 143L110 178L52 143L75 103Z"/>
+<path class="rune-thin" d="M86 42L110 110L134 42M75 103L145 103M52 143L110 110L168 143"/>
+<path class="rune-orange" d="M98 110L110 98L122 110L110 122Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g17"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffc98b"/><stop offset="1" stop-color="#ff6500"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g17)" d="M110 24L150 48L174 88L174 132L150 172L110 196L70 172L46 132L46 88L70 48Z"/>
+<circle class="rune-thin" cx="110" cy="110" r="44"/>
+<path class="rune-orange" d="M110 66V154M66 110H154M79 79L141 141M141 79L79 141"/>
+<circle class="rune-solid" cx="110" cy="110" r="6"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g18" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#ff6910"/><stop offset=".55" stop-color="#ffd5a6"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g18)" d="M62 182V60L110 30L158 60V182M82 182V94L110 76L138 94V182"/>
+<path class="rune-thin" d="M62 116H158M82 140H138"/>
+<path class="rune-orange" d="M92 116L110 98L128 116L110 134Z"/>
+<circle class="rune-solid" cx="110" cy="116" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g19"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffe0bd"/><stop offset="1" stop-color="#ff7415"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g19)" d="M40 110L70 82L58 46L102 58L110 24L118 58L162 46L150 82L180 110L150 138L162 174L118 162L110 196L102 162L58 174L70 138Z"/>
+<circle class="rune-thin" cx="110" cy="110" r="29"/>
+<path class="rune-orange" d="M110 81V139M81 110H139"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g20" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff6b0d"/><stop offset=".46" stop-color="#ffd6a7"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g20)" d="M52 40L84 70L110 34L136 70L168 40L158 91L186 110L158 129L168 180L136 150L110 186L84 150L52 180L62 129L34 110L62 91Z"/>
+<circle class="rune-orange" cx="110" cy="110" r="20"/>
+<path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g21"><stop stop-color="#fff"/><stop offset=".48" stop-color="#ffd5a4"/><stop offset="1" stop-color="#ff6a09"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g21)" d="M110 28L170 110L110 192L50 110Z"/>
+<path class="rune-thin" d="M110 28L110 192M50 110H170M75 76L145 144M145 76L75 144"/>
+<path class="rune-orange" d="M96 96L110 82L124 96L110 110L124 124L110 138L96 124L110 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g22" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#ff7111"/><stop offset=".5" stop-color="#ffd9ae"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g22)" d="M54 58L110 30L166 58V162L110 190L54 162Z"/>
+<path class="rune-thin" d="M54 58L110 88L166 58M54 162L110 132L166 162M110 30V190"/>
+<path class="rune-orange" d="M92 92H128L142 110L128 128H92L78 110Z"/>
+<circle class="rune-solid" cx="110" cy="110" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g23"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffddb8"/><stop offset="1" stop-color="#ff6b0e"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g23)" d="M110 25L128 60L170 68L140 98L147 140L110 120L73 140L80 98L50 68L92 60Z"/>
+<path class="rune-thin" d="M110 120V190M77 171H143M82 153H138"/>
+<circle class="rune-orange" cx="110" cy="92" r="17"/>
+<path class="rune-solid" d="M110 82L120 92L110 102L100 92Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="g24" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#ff6608"/><stop offset=".5" stop-color="#ffd3a1"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" stroke="url(#g24)" d="M44 46H176L143 110L176 174H44L77 110Z"/>
+<path class="rune-thin" d="M77 110H143M110 46V174"/>
+<circle class="rune-orange" cx="110" cy="110" r="25"/>
+<path class="rune-solid" d="M110 95L125 110L110 125L95 110Z"/>
+<circle class="rune-solid" cx="110" cy="110" r="4"/>
+</svg>`
+];
+
+const rune = document.getElementById("rune");
+const pulse = document.getElementById("pulse");
+
+let index = 0;
+
+function showRune() {
+    rune.classList.remove("animate");
+    void rune.offsetWidth;
+    rune.innerHTML = runes[index];
+    rune.classList.add("animate");
+
+    index = (index + 1) % runes.length;
+}
+
+showRune();
+setInterval(showRune, 2000);
+
+window.addEventListener("resize", () => {
+    rune.style.transform = "scale(1)";
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        pulse.style.animationPlayState = "paused";
+    } else {
+        pulse.style.animationPlayState = "running";
+    }
+});
+</script>
+</body>
+</html>
