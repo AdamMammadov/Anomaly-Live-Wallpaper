@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ARCANE PORTAL — Anomaly Live Wallpaper</title>
+<style>
+:root{
+    --orange:#ff6908;
+    --amber:#ffb15f;
+    --white:#fffaf1;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+}
+
+body{
+    cursor:none;
+    user-select:none;
+}
+
+#scene{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 50% 50%,rgba(255,100,10,.055),transparent 24%),
+        radial-gradient(circle at 50% 50%,rgba(255,140,35,.018),transparent 48%),
+        #000;
+}
+
+#camera{
+    position:absolute;
+    inset:-2%;
+    transform-origin:center;
+    will-change:transform;
+}
+
+#anomalyCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:4;
+    pointer-events:none;
+}
+
+#stars,
+#particles,
+#rays,
+#glyphs,
+#sparks{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
+#stars{z-index:1}
+#rays{z-index:2}
+#glyphs{z-index:3}
+#particles{z-index:5}
+#sparks{z-index:12}
+
+.star{
+    position:absolute;
+    width:1px;
+    height:1px;
+    border-radius:50%;
+    background:rgba(255,220,185,.72);
+    box-shadow:0 0 6px rgba(255,130,30,.36);
+    animation:twinkle var(--d) ease-in-out infinite;
+}
+
+@keyframes twinkle{
+    0%,100%{opacity:.03;transform:scale(.35)}
+    50%{opacity:var(--o);transform:scale(1.8)}
+}
+
+.ray{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:2px;
+    height:46vh;
+    transform-origin:50% 100%;
+    background:linear-gradient(
+        to top,
+        rgba(255,145,35,0),
+        rgba(255,194,112,.022),
+        rgba(255,235,205,.13),
+        rgba(255,100,0,0)
+    );
+    filter:blur(1px);
+    opacity:.12;
+}
+
+#portal{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:min(68vmin,790px);
+    height:min(68vmin,790px);
+    transform:translate(-50%,-50%);
+    z-index:7;
+    pointer-events:none;
+}
+
+.ring{
+    position:absolute;
+    left:50%;
+    top:50%;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    border:1px solid rgba(255,165,80,.08);
+}
+
+.r1{
+    width:100%;
+    height:100%;
+    border-color:rgba(255,125,20,.075);
+    box-shadow:0 0 20px rgba(255,100,0,.028),inset 0 0 20px rgba(255,100,0,.022);
+    animation:spin1 50s linear infinite;
+}
+
+.r2{
+    width:92%;
+    height:92%;
+    border-style:dashed;
+    border-color:rgba(255,215,175,.06);
+    animation:spin2 35s linear infinite reverse;
+}
+
+.r3{
+    width:79%;
+    height:79%;
+    border-color:rgba(255,140,35,.13);
+    box-shadow:0 0 34px rgba(255,100,0,.055),inset 0 0 25px rgba(255,105,0,.04);
+    animation:spin1 26s linear infinite;
+}
+
+.r4{
+    width:66%;
+    height:66%;
+    border-style:dotted;
+    border-color:rgba(255,220,190,.095);
+    animation:spin2 18s linear infinite reverse;
+}
+
+.r5{
+    width:53%;
+    height:53%;
+    border-color:rgba(255,118,15,.13);
+    animation:spin1 13s linear infinite;
+}
+
+@keyframes spin1{
+    from{transform:translate(-50%,-50%) rotate(0)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+@keyframes spin2{
+    from{transform:translate(-50%,-50%) rotate(360deg)}
+    to{transform:translate(-50%,-50%) rotate(0)}
+}
+
+#ticks{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:97%;
+    height:97%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+}
+
+.tick{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:2px;
+    height:10px;
+    transform-origin:0 0;
+    background:rgba(255,183,115,.16);
+}
+
+.orbit{
+    position:absolute;
+    left:50%;
+    top:50%;
+    border-radius:50%;
+    border:1px solid rgba(255,180,105,.058);
+    transform:translate(-50%,-50%) rotateX(68deg);
+}
+
+.orbit.a{
+    width:84%;
+    height:30%;
+    animation:orbitA 17s linear infinite;
+}
+
+.orbit.b{
+    width:70%;
+    height:24%;
+    transform:translate(-50%,-50%) rotateX(68deg) rotateZ(60deg);
+    animation:orbitB 23s linear infinite reverse;
+}
+
+.orbit.c{
+    width:60%;
+    height:20%;
+    transform:translate(-50%,-50%) rotateX(68deg) rotateZ(-58deg);
+    animation:orbitC 19s linear infinite;
+}
+
+.orbit-dot{
+    position:absolute;
+    left:50%;
+    top:-4px;
+    width:7px;
+    height:7px;
+    margin-left:-3.5px;
+    border-radius:50%;
+    background:#fff8ed;
+    box-shadow:0 0 6px #fff,0 0 16px #ffae5a,0 0 30px #ff6500;
+}
+
+@keyframes orbitA{
+    from{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(0)}
+    to{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(360deg)}
+}
+@keyframes orbitB{
+    from{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(60deg)}
+    to{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(-300deg)}
+}
+@keyframes orbitC{
+    from{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(-58deg)}
+    to{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(302deg)}
+}
+
+#coreGlow{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:45%;
+    height:45%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.14),rgba(255,207,159,.07) 11%,rgba(255,107,8,.045) 31%,transparent 70%);
+    filter:blur(7px);
+    animation:corePulse 3.7s ease-in-out infinite;
+}
+
+#coreBlack{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:28%;
+    height:28%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:#000;
+    box-shadow:0 0 22px rgba(255,105,8,.18),0 0 65px rgba(255,72,0,.09),inset 0 0 20px rgba(255,120,20,.065);
+}
+
+@keyframes corePulse{
+    0%,100%{transform:translate(-50%,-50%) scale(.8);opacity:.3}
+    50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}
+}
+
+#portalOpen{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:37%;
+    height:37%;
+    transform:translate(-50%,-50%);
+    border:1px solid rgba(255,194,124,.075);
+    border-radius:50%;
+    box-shadow:0 0 18px rgba(255,115,15,.035),inset 0 0 25px rgba(255,100,0,.035);
+    animation:openPortal 2.8s ease-in-out infinite;
+}
+
+@keyframes openPortal{
+    0%,100%{transform:translate(-50%,-50%) scale(.86);opacity:.4}
+    50%{transform:translate(-50%,-50%) scale(1.07);opacity:1}
+}
+
+#rune{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:min(27vmin,325px);
+    height:min(27vmin,325px);
+    min-width:155px;
+    min-height:155px;
+    transform:translate(-50%,-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:15;
+    will-change:transform,opacity,filter;
+}
+
+#rune svg{
+    width:100%;
+    height:100%;
+    overflow:visible;
+}
+
+.rune-path{
+    fill:none;
+    stroke:url(#g);
+    stroke-width:7;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.rune-thin{
+    fill:none;
+    stroke:#fff9f0;
+    stroke-width:3.2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.rune-orange{
+    fill:none;
+    stroke:#ff7914;
+    stroke-width:4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.rune-solid{fill:#fffaf0}
+
+#rune.show{
+    animation:runeShow 2s cubic-bezier(.18,.8,.2,1) forwards;
+}
+
+@keyframes runeShow{
+    0%{
+        opacity:0;
+        transform:translate(-50%,-50%) scale(.62) rotate(-12deg);
+        filter:drop-shadow(0 0 0 rgba(255,255,255,0)) drop-shadow(0 0 0 rgba(255,80,0,0));
+    }
+    12%{
+        opacity:1;
+        transform:translate(-50%,-50%) scale(1) rotate(0);
+        filter:drop-shadow(0 0 4px rgba(255,255,255,1)) drop-shadow(0 0 10px rgba(255,226,190,1)) drop-shadow(0 0 22px rgba(255,155,50,.95)) drop-shadow(0 0 48px rgba(255,74,0,.72));
+    }
+    70%{
+        opacity:1;
+        transform:translate(-50%,-50%) scale(1) rotate(0);
+        filter:drop-shadow(0 0 5px rgba(255,255,255,1)) drop-shadow(0 0 13px rgba(255,221,180,1)) drop-shadow(0 0 27px rgba(255,147,40,1)) drop-shadow(0 0 62px rgba(255,67,0,.78));
+    }
+    100%{
+        opacity:0;
+        transform:translate(-50%,-50%) scale(1.14) rotate(8deg);
+        filter:drop-shadow(0 0 0 rgba(255,255,255,0)) drop-shadow(0 0 0 rgba(255,80,0,0));
+    }
+}
+
+#glyphs{
+    width:min(55vmin,650px);
+    height:min(55vmin,650px);
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    animation:glyphSpin 86s linear infinite;
+}
+
+@keyframes glyphSpin{
+    from{transform:translate(-50%,-50%) rotate(0)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+.glyph{
+    position:absolute;
+    left:50%;
+    top:50%;
+    color:rgba(255,211,171,.16);
+    font-family:Georgia,serif;
+    text-shadow:0 0 7px rgba(255,255,255,.11),0 0 18px rgba(255,100,0,.14);
+}
+
+.particle{
+    position:absolute;
+    width:2px;
+    height:2px;
+    border-radius:50%;
+    background:rgba(255,215,180,.7);
+    box-shadow:0 0 5px rgba(255,255,255,.4),0 0 12px rgba(255,120,20,.3);
+    animation:particleMove var(--dur) linear infinite;
+}
+
+@keyframes particleMove{
+    0%{transform:translate3d(0,0,0) scale(.2);opacity:0}
+    15%{opacity:.6}
+    50%{opacity:.25}
+    82%{opacity:.65}
+    100%{transform:translate3d(var(--x),var(--y),0) scale(1.7);opacity:0}
+}
+
+.spark{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:3px;
+    height:3px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 0 6px #fff,0 0 18px #ffad5c,0 0 35px #ff6500;
+    opacity:0;
+}
+
+.spark.go{
+    animation:spark 1.4s ease-out forwards;
+}
+
+@keyframes spark{
+    0%{transform:translate(-50%,-50%) rotate(var(--a)) translateX(8px) scale(.2);opacity:1}
+    100%{transform:translate(-50%,-50%) rotate(var(--a)) translateX(var(--r)) scale(0);opacity:0}
+}
+
+#pulse{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:70px;
+    height:70px;
+    transform:translate(-50%,-50%) scale(.1);
+    border:1px solid rgba(255,190,120,.5);
+    border-radius:50%;
+    opacity:0;
+    z-index:9;
+}
+
+#pulse.go{animation:pulse 2s ease-out forwards}
+
+@keyframes pulse{
+    0%{transform:translate(-50%,-50%) scale(.1);opacity:.72}
+    38%{opacity:.3}
+    100%{transform:translate(-50%,-50%) scale(8);opacity:0}
+}
+
+#flash{
+    position:absolute;
+    inset:0;
+    z-index:31;
+    opacity:0;
+    pointer-events:none;
+    background:radial-gradient(circle at center,rgba(255,255,255,.08),rgba(255,126,25,.03) 20%,transparent 48%);
+}
+
+#flash.go{animation:flash 1.2s ease-out forwards}
+
+@keyframes flash{
+    0%{opacity:.8}
+    100%{opacity:0}
+}
+
+#distortion{
+    position:absolute;
+    inset:0;
+    z-index:35;
+    pointer-events:none;
+    opacity:.038;
+    background:repeating-linear-gradient(to bottom,rgba(255,165,85,.1) 0,rgba(255,165,85,.1) 1px,transparent 2px,transparent 5px);
+    mix-blend-mode:screen;
+}
+
+#vignette{
+    position:absolute;
+    inset:0;
+    z-index:40;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center,transparent 31%,rgba(0,0,0,.19) 59%,rgba(0,0,0,.62) 100%);
+}
+
+#soundHint{
+    position:fixed;
+    left:50%;
+    bottom:22px;
+    transform:translateX(-50%);
+    z-index:100;
+    color:rgba(255,220,188,.35);
+    font:10px/1 Arial,sans-serif;
+    letter-spacing:4px;
+    opacity:0;
+    transition:opacity .5s ease;
+    pointer-events:none;
+}
+
+#soundHint.visible{opacity:1}
+
+@media(max-width:700px){
+    #portal{width:82vmin;height:82vmin}
+    #rune{width:34vmin;height:34vmin}
+    #glyphs{width:73vmin;height:73vmin}
+}
+
+@media(prefers-reduced-motion:reduce){
+    *{animation-duration:1ms!important;animation-iteration-count:1!important}
+}
+</style>
+</head>
+
+<body>
+
+<div id="scene">
+    <div id="camera">
+
+        <canvas id="anomalyCanvas"></canvas>
+
+        <div id="stars"></div>
+        <div id="rays"></div>
+        <div id="glyphs"></div>
+        <div id="particles"></div>
+
+        <div id="portal">
+            <div class="ring r1"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+            <div class="ring r4"></div>
+            <div class="ring r5"></div>
+
+            <div id="ticks"></div>
+
+            <div class="orbit a"><div class="orbit-dot"></div></div>
+            <div class="orbit b"><div class="orbit-dot"></div></div>
+            <div class="orbit c"><div class="orbit-dot"></div></div>
+
+            <div id="portalOpen"></div>
+            <div id="coreGlow"></div>
+            <div id="coreBlack"></div>
+        </div>
+
+        <div id="sparks"></div>
+        <div id="pulse"></div>
+        <div id="rune"></div>
+
+    </div>
+
+    <div id="flash"></div>
+    <div id="distortion"></div>
+    <div id="vignette"></div>
+</div>
+
+<div id="soundHint">CLICK ANYWHERE — ACTIVATE SOUND</div>
+
+<audio id="music"
+       src="dave-deville-investigate-loopable.mp3"
+       preload="auto"
+       loop></audio>
+
+<script>
+const runes=[
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffe0bd"/><stop offset="1" stop-color="#ff6a0c"/></linearGradient></defs><path class="rune-path" d="M110 18V202M76 46L110 18L144 46M76 174L110 202L144 174M60 82L110 110L160 82M60 138L110 110L160 138"/><circle class="rune-thin" cx="110" cy="110" r="19"/><path class="rune-orange" d="M95 110H125M110 95V125"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff7110"/><stop offset=".5" stop-color="#ffd49e"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M42 40H178L110 110L178 180H42L110 110Z"/><path class="rune-thin" d="M72 67H148M72 153H148M110 40V180"/><circle class="rune-solid" cx="110" cy="110" r="7"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd4a1"/><stop offset="1" stop-color="#ff7411"/></linearGradient></defs><path class="rune-path" d="M54 175L88 45L110 75L132 45L166 175M74 120H146M89 91H131"/><path class="rune-thin" d="M67 175H153"/><circle class="rune-orange" cx="110" cy="143" r="17"/><path class="rune-solid" d="M110 132L117 143L110 154L103 143Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdfbb"/><stop offset="1" stop-color="#ff6f0d"/></linearGradient></defs><path class="rune-path" d="M38 78L74 48L110 78L146 48L182 78M58 78V155M94 78V174M130 78V174M166 78V155"/><path class="rune-thin" d="M58 155L94 174L130 174L166 155M74 48V26M146 48V26"/><circle class="rune-solid" cx="74" cy="48" r="6"/><circle class="rune-solid" cx="146" cy="48" r="6"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd3a0"/><stop offset="1" stop-color="#ff6710"/></linearGradient></defs><path class="rune-path" d="M110 28L173 73L149 148L110 192L71 148L47 73Z"/><path class="rune-thin" d="M110 28V192M47 73L173 73M71 148L149 148"/><path class="rune-orange" d="M85 88L110 68L135 88L110 110Z"/><path class="rune-orange" d="M85 132L110 152L135 132L110 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff690d"/><stop offset=".5" stop-color="#ffd6a3"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M58 178V66L110 33L162 66V178M58 102H162M76 80L110 60L144 80"/><path class="rune-thin" d="M84 178V128H136V178M110 33V178"/><circle class="rune-solid" cx="110" cy="102" r="8"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdbb1"/><stop offset="1" stop-color="#ff7010"/></linearGradient></defs><path class="rune-path" d="M110 24L126 78L180 93L126 108L110 180L94 108L40 93L94 78Z"/><circle class="rune-thin" cx="110" cy="93" r="24"/><path class="rune-orange" d="M110 69V117M86 93H134"/><circle class="rune-solid" cx="110" cy="93" r="5"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff680c"/><stop offset=".5" stop-color="#ffd8ad"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M54 50L110 28L166 50L150 110L166 170L110 192L54 170L70 110Z"/><path class="rune-thin" d="M54 50L110 110L166 50M54 170L110 110L166 170M70 110H150"/><path class="rune-orange" d="M92 72L128 72L140 110L128 148H92L80 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdfbd"/><stop offset="1" stop-color="#ff6c0e"/></linearGradient></defs><path class="rune-path" d="M70 32H150L174 110L150 188H70L46 110Z"/><path class="rune-thin" d="M70 32L110 76L150 32M70 188L110 144L150 188M46 110H174"/><circle class="rune-orange" cx="110" cy="110" r="14"/><path class="rune-solid" d="M110 99L121 110L110 121L99 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd39e"/><stop offset="1" stop-color="#ff6a0c"/></linearGradient></defs><path class="rune-path" d="M42 154L73 123L52 91L89 85L79 48L110 69L141 48L131 85L168 91L147 123L178 154L137 151L110 180L83 151Z"/><circle class="rune-thin" cx="110" cy="111" r="26"/><path class="rune-orange" d="M98 111H122M110 99V123"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff6a0c"/><stop offset=".5" stop-color="#ffd8ac"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M110 25V195M45 60L175 160M175 60L45 160M65 28L155 192M155 28L65 192"/><path class="rune-thin" d="M82 48L138 172M138 48L82 172"/><circle class="rune-solid" cx="110" cy="25" r="5"/><circle class="rune-solid" cx="110" cy="195" r="5"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdbb0"/><stop offset="1" stop-color="#ff6710"/></linearGradient></defs><path class="rune-path" d="M48 48L110 84L172 48M48 172L110 136L172 172M62 62L110 110L158 62M62 158L110 110L158 158"/><circle class="rune-thin" cx="110" cy="110" r="22"/><path class="rune-orange" d="M110 79V141M79 110H141"/><circle class="rune-solid" cx="110" cy="110" r="5"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff700e"/><stop offset=".5" stop-color="#ffdcb6"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M110 32C65 32 42 64 42 110S65 188 110 188 178 156 178 110 155 32 110 32Z"/><path class="rune-thin" d="M68 110H152M110 64V156"/><path class="rune-orange" d="M92 92L128 92L128 128L92 128Z"/><path class="rune-solid" d="M110 94L126 110L110 126L94 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd19f"/><stop offset="1" stop-color="#ff680d"/></linearGradient></defs><path class="rune-path" d="M55 170L82 54L110 93L138 54L165 170M70 135L150 135M80 93H140"/><path class="rune-thin" d="M55 170H165"/><path class="rune-orange" d="M97 148L110 130L123 148L110 166Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff680d"/><stop offset=".5" stop-color="#ffd6a7"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M110 28L162 54V110L138 162L110 192L82 162L58 110V54Z"/><path class="rune-thin" d="M58 54L110 78L162 54M58 110H162M82 162L110 140L138 162"/><circle class="rune-orange" cx="110" cy="110" r="18"/><path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffddb9"/><stop offset="1" stop-color="#ff6b0e"/></linearGradient></defs><path class="rune-path" d="M44 70L86 42L110 72L134 42L176 70L145 103L168 143L110 178L52 143L75 103Z"/><path class="rune-thin" d="M86 42L110 110L134 42M75 103L145 103M52 143L110 110L168 143"/><path class="rune-orange" d="M98 110L110 98L122 110L110 122Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".48" stop-color="#ffd4a0"/><stop offset="1" stop-color="#ff650a"/></linearGradient></defs><path class="rune-path" d="M110 24L150 48L174 88L174 132L150 172L110 196L70 172L46 132L46 88L70 48Z"/><circle class="rune-thin" cx="110" cy="110" r="44"/><path class="rune-orange" d="M110 66V154M66 110H154M79 79L141 141M141 79L79 141"/><circle class="rune-solid" cx="110" cy="110" r="6"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff6b0c"/><stop offset=".5" stop-color="#ffd9ad"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M62 182V60L110 30L158 60V182M82 182V94L110 76L138 94V182"/><path class="rune-thin" d="M62 116H158M82 140H138"/><path class="rune-orange" d="M92 116L110 98L128 116L110 134Z"/><circle class="rune-solid" cx="110" cy="116" r="5"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdfbd"/><stop offset="1" stop-color="#ff6810"/></linearGradient></defs><path class="rune-path" d="M40 110L70 82L58 46L102 58L110 24L118 58L162 46L150 82L180 110L150 138L162 174L118 162L110 196L102 162L58 174L70 138Z"/><circle class="rune-thin" cx="110" cy="110" r="29"/><path class="rune-orange" d="M110 81V139M81 110H139"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff650a"/><stop offset=".5" stop-color="#ffd6a8"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M44 46L77 110L44 174H176L143 110L176 46Z"/><path class="rune-thin" d="M77 110H143M110 46V174"/><circle class="rune-orange" cx="110" cy="110" r="25"/><path class="rune-solid" d="M110 95L125 110L110 125L95 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffddb5"/><stop offset="1" stop-color="#ff690b"/></linearGradient></defs><path class="rune-path" d="M110 25L128 60L170 68L140 98L147 140L110 120L73 140L80 98L50 68L92 60Z"/><path class="rune-thin" d="M110 120V190M77 171H143M82 153H138"/><circle class="rune-orange" cx="110" cy="92" r="17"/><path class="rune-solid" d="M110 82L120 92L110 102L100 92Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff650a"/><stop offset=".5" stop-color="#ffd5a5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M52 40L84 70L110 34L136 70L168 40L158 91L186 110L158 129L168 180L136 150L110 186L84 150L52 180L62 129L34 110L62 91Z"/><circle class="rune-orange" cx="110" cy="110" r="20"/><path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffddb9"/><stop offset="1" stop-color="#ff650a"/></linearGradient></defs><path class="rune-path" d="M110 28L170 110L110 192L50 110Z"/><path class="rune-thin" d="M110 28V192M50 110H170M75 76L145 144M145 76L75 144"/><path class="rune-orange" d="M96 96L110 82L124 96L110 110L124 124L110 138L96 124L110 110Z"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#ff690b"/><stop offset=".5" stop-color="#ffd6a6"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path class="rune-path" d="M54 58L110 30L166 58V162L110 190L54 162Z"/><path class="rune-thin" d="M54 58L110 88L166 58M54 162L110 132L166 162M110 30V190"/><path class="rune-orange" d="M92 92H128L142 110L128 128H92L78 110Z"/><circle class="rune-solid" cx="110" cy="110" r="5"/></svg>`,
+
+`<svg viewBox="0 0 220 220"><defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdcaf"/><stop offset="1" stop-color="#ff680b"/></linearGradient></defs><path class="rune-path" d="M110 22L140 54L178 74L158 110L178 146L140 166L110 198L80 166L42 146L62 110L42 74L80 54Z"/><circle class="rune-thin" cx="110" cy="110" r="33"/><path class="rune-orange" d="M110 78L124 96L146 100L130 116L134 139L110 128L86 139L90 116L74 100L96 96Z"/><circle class="rune-solid" cx="110" cy="110" r="5"/></svg>`
+
+];
+
+const glyphSet=["ᚦ","ᛉ","ᚨ","ᛟ","ᚱ","ᚲ","ᛏ","ᚹ","ϟ","Ψ","Ж","Ȝ","Ƶ","ƛ","⟐","⟁","⟡","◈","⊙","⌁","⋔","ᛝ","ᚾ","ᛒ","⌬","⟟","⧫","◌","◉","⋈"];
+
+const rune=document.getElementById("rune");
+const pulse=document.getElementById("pulse");
+const flash=document.getElementById("flash");
+const sparks=document.getElementById("sparks");
+const ticks=document.getElementById("ticks");
+const particles=document.getElementById("particles");
+const stars=document.getElementById("stars");
+const rays=document.getElementById("rays");
+const glyphs=document.getElementById("glyphs");
+const camera=document.getElementById("camera");
+const soundHint=document.getElementById("soundHint");
+const music=document.getElementById("music");
+
+let runeIndex=0;
+
+music.volume=.34;
+
+for(let i=0;i<110;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    s.style.left=Math.random()*100+"%";
+    s.style.top=Math.random()*100+"%";
+    s.style.setProperty("--d",(2+Math.random()*7)+"s");
+    s.style.setProperty("--o",(0.12+Math.random()*.62).toFixed(2));
+    s.style.animationDelay=(-Math.random()*8)+"s";
+    stars.appendChild(s);
+}
+
+for(let i=0;i<30;i++){
+    const ray=document.createElement("div");
+    ray.className="ray";
+    ray.style.transform=`translate(-50%,-100%) rotate(${i*(360/30)}deg)`;
+    ray.style.opacity=(.025+Math.random()*.09).toFixed(3);
+    rays.appendChild(ray);
+}
+
+for(let i=0;i<72;i++){
+    const p=document.createElement("div");
+    p.className="particle";
+    p.style.left=Math.random()*100+"%";
+    p.style.top=Math.random()*100+"%";
+    p.style.setProperty("--x",((Math.random()-.5)*320)+"px");
+    p.style.setProperty("--y",(-50-Math.random()*380)+"px");
+    p.style.setProperty("--dur",(5+Math.random()*12)+"s");
+    p.style.animationDelay=(-Math.random()*15)+"s";
+    const size=.7+Math.random()*2;
+    p.style.width=size+"px";
+    p.style.height=size+"px";
+    particles.appendChild(p);
+}
+
+for(let i=0;i<44;i++){
+    const t=document.createElement("div");
+    t.className="tick";
+    const a=i*(360/44);
+    t.style.transform=`translate(-50%,-50%) rotate(${a}deg) translateY(-48%)`;
+    ticks.appendChild(t);
+}
+
+glyphSet.forEach((g,i)=>{
+    const el=document.createElement("div");
+    el.className="glyph";
+    el.textContent=g;
+    const angle=i*(360/glyphSet.length);
+    const radius=43+(i%5)*2;
+    el.style.fontSize=(11+(i%6)*2)+"px";
+    el.style.opacity=(.07+(i%5)*.026).toFixed(3);
+    el.style.transform=`translate(-50%,-50%) rotate(${angle}deg) translateY(-${radius}%) rotate(${-angle}deg)`;
+    glyphs.appendChild(el);
+});
+
+function createSpark(){
+    const s=document.createElement("div");
+    s.className="spark";
+    s.style.setProperty("--a",(Math.random()*360)+"deg");
+    s.style.setProperty("--r",(120+Math.random()*300)+"px");
+    sparks.appendChild(s);
+    requestAnimationFrame(()=>s.classList.add("go"));
+    setTimeout(()=>s.remove(),1500);
+}
+
+function energyBurst(){
+    pulse.classList.remove("go");
+    void pulse.offsetWidth;
+    pulse.classList.add("go");
+
+    flash.classList.remove("go");
+    void flash.offsetWidth;
+    flash.classList.add("go");
+
+    for(let i=0;i<12;i++){
+        setTimeout(createSpark,i*40);
+    }
+}
+
+function showRune(){
+    rune.classList.remove("show");
+    void rune.offsetWidth;
+    rune.innerHTML=runes[runeIndex];
+    rune.classList.add("show");
+    energyBurst();
+    runeIndex=(runeIndex+1)%runes.length;
+}
+
+showRune();
+setInterval(showRune,2000);
+
+let mx=0,my=0,tx=0,ty=0;
+
+window.addEventListener("mousemove",e=>{
+    tx=(e.clientX/window.innerWidth-.5)*2;
+    ty=(e.clientY/window.innerHeight-.5)*2;
+});
+
+function cameraLoop(t){
+    mx+=(tx-mx)*.018;
+    my+=(ty-my)*.018;
+    const q=t*.00025;
+    const dx=Math.sin(q*1.17)*1.8+mx*3;
+    const dy=Math.cos(q*.91)*1.8+my*3;
+    const scale=1.005+Math.sin(q)*.003;
+    camera.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${scale})`;
+    requestAnimationFrame(cameraLoop);
+}
+requestAnimationFrame(cameraLoop);
+
+setInterval(()=>{
+    if(Math.random()>.35) createSpark();
+},430);
+
+function unlockAudio(){
+    music.play().then(()=>{
+        soundHint.classList.remove("visible");
+    }).catch(()=>{
+        soundHint.classList.add("visible");
+    });
+}
+
+window.addEventListener("pointerdown",unlockAudio,{once:true});
+window.addEventListener("keydown",unlockAudio,{once:true});
+window.addEventListener("touchstart",unlockAudio,{once:true,passive:true});
+
+setTimeout(()=>{
+    music.play().then(()=>{
+        soundHint.classList.remove("visible");
+    }).catch(()=>{
+        soundHint.classList.add("visible");
+        setTimeout(()=>soundHint.classList.remove("visible"),3500);
+    });
+},700);
+
+const canvas=document.getElementById("anomalyCanvas");
+const ctx=canvas.getContext("2d");
+
+let W=0,H=0,dpr=1;
+let anomalyA="normal";
+let anomalyB="normal";
+let previousA="normal";
+let previousB="normal";
+let anomalyStart=performance.now();
+let nextAnomaly=performance.now()+3600;
+
+const anomalyTypes=[
+    "normal",
+    "vanish",
+    "teleport",
+    "flycars",
+    "blackhole",
+    "explosion",
+    "glitch"
+];
+
+const leftBuildings=[];
+const rightBuildings=[];
+const people=[];
+const cars=[];
+const debris=[];
+
+function resizeCanvas(){
+    dpr=Math.min(devicePixelRatio||1,2);
+    W=window.innerWidth;
+    H=window.innerHeight;
+    canvas.width=Math.floor(W*dpr);
+    canvas.height=Math.floor(H*dpr);
+    canvas.style.width=W+"px";
+    canvas.style.height=H+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    makeWorld();
+}
+
+function makeWorld(){
+    leftBuildings.length=0;
+    rightBuildings.length=0;
+    people.length=0;
+    cars.length=0;
+
+    const sides=[
+        {from:0,to:.37,list:leftBuildings},
+        {from:.63,to:1,list:rightBuildings}
+    ];
+
+    for(const side of sides){
+        let x=W*side.from;
+        const end=W*side.to;
+
+        while(x<end){
+            const bw=20+Math.random()*42;
+            const bh=H*(.08+Math.random()*.24);
+            side.list.push({
+                x,
+                w:bw,
+                h:bh,
+                windows:Math.floor(2+Math.random()*5),
+                seed:Math.random()*1000
+            });
+            x+=bw+3+Math.random()*8;
+        }
+    }
+
+    for(let i=0;i<26;i++){
+        const side=i%2===0?"L":"R";
+        people.push({
+            side,
+            t:Math.random(),
+            phase:Math.random()*Math.PI*2,
+            speed:.35+Math.random()*.55
+        });
+    }
+
+    for(let i=0;i<12;i++){
+        cars.push({
+            side:i%2===0?"L":"R",
+            t:Math.random(),
+            speed:.15+Math.random()*.35,
+            lift:0
+        });
+    }
+}
+
+function randType(except){
+    let type;
+    do{
+        type=anomalyTypes[Math.floor(Math.random()*anomalyTypes.length)];
+    }while(type===except);
+    return type;
+}
+
+function switchAnomaly(now){
+    previousA=anomalyA;
+    previousB=anomalyB;
+    anomalyA=randType(anomalyA);
+    anomalyB=Math.random()>.25?randType(anomalyB):anomalyA;
+    anomalyStart=now;
+    nextAnomaly=now+3200+Math.random()*900;
+
+    if(anomalyA==="explosion"||anomalyB==="explosion"){
+        makeDebris();
+    }
+
+    if(anomalyA==="blackhole"||anomalyB==="blackhole"){
+        makeDebris();
+    }
+}
+
+function makeDebris(){
+    debris.length=0;
+    for(let i=0;i<38;i++){
+        const side=Math.random()<.5?"L":"R";
+        debris.push({
+            side,
+            x:side==="L" ? W*(.08+Math.random()*.24) : W*(.68+Math.random()*.24),
+            y:H*(.22+Math.random()*.58),
+            vx:(Math.random()-.5)*150,
+            vy:(Math.random()-.5)*150,
+            rot:Math.random()*Math.PI,
+            vr:(Math.random()-.5)*7,
+            size:2+Math.random()*8,
+            life:.5+Math.random()*1.8
+        });
+    }
+}
+
+function sideBounds(side){
+    return side==="L"
+        ? {x:W*.02,w:W*.33}
+        : {x:W*.65,w:W*.33};
+}
+
+function drawCity(side,alpha,now,type){
+    const b=side==="L"?leftBuildings:rightBuildings;
+    const bounds=sideBounds(side);
+
+    ctx.save();
+    ctx.globalAlpha=alpha;
+
+    const horizon=H*.79;
+
+    for(const building of b){
+        let bh=building.h;
+
+        if(type==="vanish"){
+            const progress=Math.min(1,(now-anomalyStart)/1600);
+            const p=(Math.sin(building.seed*2.71)*.5+.5);
+            if(p<progress*.92){
+                bh*=Math.max(0,1-(progress-p*.85)*5);
+            }
+        }
+
+        if(type==="glitch"){
+            bh*=.8+.2*Math.sin(now*.015+building.seed);
+        }
+
+        const x=building.x;
+        const y=horizon-bh;
+
+        ctx.fillStyle="rgba(7,7,7,.94)";
+        ctx.fillRect(x,y,building.w,bh);
+
+        ctx.strokeStyle="rgba(255,111,20,.06)";
+        ctx.strokeRect(x,y,building.w,bh);
+
+        const rows=Math.max(2,Math.floor(bh/25));
+        const cols=Math.max(1,Math.floor(building.w/15));
+
+        for(let r=0;r<rows;r++){
+            for(let c=0;c<cols;c++){
+                const wx=x+5+c*12;
+                const wy=y+8+r*18;
+
+                if(wx>x+building.w-4||wy>horizon-8) continue;
+
+                const active=Math.sin(building.seed+r*7+c*4.3)>.82;
+                if(active){
+                    ctx.fillStyle="rgba(255,172,93,.12)";
+                    ctx.fillRect(wx,wy,4,6);
+                }
+            }
+        }
+    }
+
+    ctx.fillStyle="rgba(255,115,12,.07)";
+    ctx.fillRect(bounds.x,horizon,W*.33,.6);
+
+    ctx.restore();
+}
+
+function drawPeople(side,alpha,now,type){
+    ctx.save();
+    ctx.globalAlpha=alpha;
+
+    const count=side==="L"?14:12;
+    const bounds=sideBounds(side);
+
+    for(let i=0;i<count;i++){
+        const p=people[side==="L"?i:i+14];
+        let x=bounds.x+((p.t+i*.071)%1)*bounds.w;
+        let y=H*.79-10;
+
+        if(type==="teleport"){
+            const pulse=Math.sin((now-anomalyStart)*.004+i);
+            if(pulse>.55) y-=40+90*(pulse-.55);
+        }
+
+        if(type==="glitch"){
+            x+=Math.sin(now*.02+i)*10;
+            y+=Math.cos(now*.024+i)*8;
+        }
+
+        if(type==="blackhole"){
+            const cx=side==="L"?W*.25:W*.75;
+            const dx=cx-x;
+            const pull=Math.max(0,1-Math.min(1,Math.abs(dx)/(W*.18)));
+            x+=dx*pull*.35;
+            y-=pull*80;
+        }
+
+        ctx.fillStyle="rgba(12,12,12,.96)";
+        ctx.beginPath();
+        ctx.arc(x,y-15,4.2,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.strokeStyle="rgba(255,128,35,.16)";
+        ctx.lineWidth=1.3;
+        ctx.beginPath();
+        ctx.moveTo(x,y-10);
+        ctx.lineTo(x,y+2);
+        ctx.moveTo(x,y-6);
+        ctx.lineTo(x-5,y);
+        ctx.moveTo(x,y-6);
+        ctx.lineTo(x+5,y);
+        ctx.moveTo(x,y+2);
+        ctx.lineTo(x-4,y+9);
+        ctx.moveTo(x,y+2);
+        ctx.lineTo(x+4,y+9);
+        ctx.stroke();
+
+        if(type==="teleport"){
+            const beam=Math.max(0,Math.sin((now-anomalyStart)*.006+i*1.4));
+            if(beam>.76){
+                ctx.strokeStyle="rgba(255,201,143,.3)";
+                ctx.lineWidth=2;
+                ctx.beginPath();
+                ctx.moveTo(x,y+8);
+                ctx.lineTo(x,y-70);
+                ctx.stroke();
+
+                ctx.strokeStyle="rgba(255,113,10,.16)";
+                ctx.lineWidth=5;
+                ctx.beginPath();
+                ctx.moveTo(x,y+8);
+                ctx.lineTo(x,y-70);
+                ctx.stroke();
+            }
+        }
+    }
+
+    ctx.restore();
+}
+
+function drawCars(side,alpha,now,type){
+    ctx.save();
+    ctx.globalAlpha=alpha;
+
+    const count=side==="L"?6:6;
+    const bounds=sideBounds(side);
+    const roadY=H*.825;
+
+    for(let i=0;i<count;i++){
+        const car=cars[side==="L"?i:i+6];
+        let x=bounds.x+((car.t+(now/10000)*car.speed+i*.17)%1)*bounds.w;
+        let y=roadY;
+
+        let angle=0;
+
+        if(type==="flycars"){
+            y-=35+Math.sin((now-anomalyStart)*.005+i)*55;
+            angle=-.3+Math.sin(i+now*.003)*.25;
+        }
+
+        if(type==="blackhole"){
+            const cx=side==="L"?W*.25:W*.75;
+            const dx=cx-x;
+            const pull=Math.max(0,1-Math.min(1,Math.abs(dx)/(W*.22)));
+            x+=dx*pull*.55;
+            y-=pull*50;
+            angle+=pull*.35*(side==="L"?-1:1);
+        }
+
+        if(type==="glitch"){
+            x+=Math.sin(now*.02+i*2)*16;
+            y+=Math.cos(now*.017+i)*10;
+        }
+
+        ctx.save();
+        ctx.translate(x,y);
+        ctx.rotate(angle);
+
+        ctx.fillStyle="rgba(13,13,13,.98)";
+        ctx.beginPath();
+        ctx.roundRect(-18,-6,36,9,3);
+        ctx.fill();
+
+        ctx.fillStyle="rgba(255,196,133,.2)";
+        ctx.fillRect(-12,-5,9,4);
+
+        ctx.fillStyle="rgba(255,98,20,.2)";
+        ctx.fillRect(7,-5,6,4);
+
+        ctx.fillStyle="rgba(255,115,15,.15)";
+        ctx.beginPath();
+        ctx.arc(-11,5,3,0,Math.PI*2);
+        ctx.arc(11,5,3,0,Math.PI*2);
+        ctx.fill();
+
+        if(type==="flycars"){
+            ctx.strokeStyle="rgba(255,123,20,.18)";
+            ctx.lineWidth=1.2;
+            ctx.beginPath();
+            ctx.moveTo(-20,8);
+            ctx.lineTo(20,8);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    ctx.fillStyle="rgba(255,126,25,.065)";
+    ctx.fillRect(bounds.x,roadY+8,bounds.w,1);
+
+    ctx.restore();
+}
+
+function drawBlackHole(side,alpha,now){
+    const bounds=sideBounds(side);
+    const cx=side==="L"?W*.235:W*.765;
+    const cy=H*.49;
+
+    const t=(now-anomalyStart)/1000;
+    const appear=Math.min(1,t/.9);
+    const pulse=1+.06*Math.sin(now*.004);
+
+    ctx.save();
+    ctx.globalAlpha=alpha*appear;
+
+    const outer=110*pulse;
+
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,outer);
+    g.addColorStop(0,"rgba(0,0,0,1)");
+    g.addColorStop(.2,"rgba(0,0,0,1)");
+    g.addColorStop(.43,"rgba(15,4,1,.98)");
+    g.addColorStop(.58,"rgba(255,92,5,.12)");
+    g.addColorStop(.75,"rgba(255,125,20,.035)");
+    g.addColorStop(1,"rgba(0,0,0,0)");
+
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.arc(cx,cy,outer,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(t*.55*(side==="L"?1:-1));
+    ctx.strokeStyle="rgba(255,176,93,.2)";
+    ctx.lineWidth=5;
+    ctx.beginPath();
+    ctx.ellipse(0,0,90,22,0,0,Math.PI*2);
+    ctx.stroke();
+
+    ctx.strokeStyle="rgba(255,105,10,.2)";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.ellipse(0,0,75,15,0,0,Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+
+    for(let i=0;i<18;i++){
+        const a=i*(Math.PI*2/18)+t*(.6);
+        const r=outer*(.55+.18*Math.sin(i*2.4));
+        const px=cx+Math.cos(a)*r;
+        const py=cy+Math.sin(a)*r*.42;
+
+        ctx.fillStyle="rgba(255,177,100,.24)";
+        ctx.fillRect(px,py,2,2);
+    }
+
+    ctx.restore();
+}
+
+function drawExplosion(side,alpha,now){
+    const bounds=sideBounds(side);
+    const cx=side==="L"?W*.24:W*.76;
+    const cy=H*.58;
+    const t=(now-anomalyStart)/1000;
+
+    if(t>2.1) return;
+
+    const p=t/2.1;
+    const radius=24+Math.sin(Math.min(1,p)*Math.PI)*120;
+
+    ctx.save();
+    ctx.globalAlpha=alpha*(1-p*.65);
+
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,radius);
+    g.addColorStop(0,"rgba(255,255,220,.85)");
+    g.addColorStop(.12,"rgba(255,213,143,.65)");
+    g.addColorStop(.35,"rgba(255,119,12,.45)");
+    g.addColorStop(1,"rgba(255,75,0,0)");
+
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius,0,Math.PI*2);
+    ctx.fill();
+
+    for(let i=0;i<26;i++){
+        const a=i*(Math.PI*2/26)+p*4;
+        const rr=radius*(.35+.7*Math.abs(Math.sin(i*4.77)));
+        const px=cx+Math.cos(a)*rr;
+        const py=cy+Math.sin(a)*rr*.72;
+
+        ctx.fillStyle="rgba(255,180,93,.55)";
+        ctx.fillRect(px,py,2+Math.random()*3,2+Math.random()*3);
+    }
+
+    ctx.restore();
+}
+
+function drawGlitch(side,alpha,now){
+    const bounds=sideBounds(side);
+    ctx.save();
+    ctx.globalAlpha=alpha;
+
+    for(let i=0;i<13;i++){
+        const y=H*(.18+i*.045)+Math.sin(now*.01+i)*9;
+        const h=1+Math.random()*7;
+        const x=bounds.x+Math.random()*bounds.w*.75;
+        const w=30+Math.random()*130;
+
+        ctx.fillStyle=i%3===0
+            ?"rgba(255,102,8,.13)"
+            :"rgba(255,217,178,.06)";
+
+        ctx.fillRect(x,y,w,h);
+    }
+
+    ctx.strokeStyle="rgba(255,118,20,.16)";
+    for(let i=0;i<4;i++){
+        const y=H*(.3+i*.15)+Math.sin(now*.005+i)*20;
+        ctx.beginPath();
+        ctx.moveTo(bounds.x,y);
+        ctx.lineTo(bounds.x+bounds.w,y+Math.sin(i+now*.006)*10);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+function drawAnomalySide(side,type,alpha,now){
+    drawCity(side,alpha,now,type);
+    drawPeople(side,alpha,now,type);
+    drawCars(side,alpha,now,type);
+
+    if(type==="blackhole") drawBlackHole(side,alpha,now);
+    if(type==="explosion") drawExplosion(side,alpha,now);
+    if(type==="glitch") drawGlitch(side,alpha,now);
+}
+
+function updateDebris(dt){
+    for(const d of debris){
+        d.x+=d.vx*dt;
+        d.y+=d.vy*dt;
+        d.rot+=d.vr*dt;
+        d.vy+=90*dt;
+        d.life-=dt;
+    }
+
+    for(let i=debris.length-1;i>=0;i--){
+        if(debris[i].life<=0) debris.splice(i,1);
+    }
+}
+
+function drawDebris(){
+    for(const d of debris){
+        ctx.save();
+        ctx.translate(d.x,d.y);
+        ctx.rotate(d.rot);
+        ctx.globalAlpha=Math.max(0,d.life/2);
+        ctx.fillStyle="rgba(255,171,94,.35)";
+        ctx.fillRect(-d.size*.5,-d.size*.5,d.size,d.size);
+        ctx.restore();
+    }
+}
+
+let lastTime=performance.now();
+
+function animateAnomalies(now){
+    const dt=Math.min(.05,(now-lastTime)/1000);
+    lastTime=now;
+
+    if(now>=nextAnomaly){
+        switchAnomaly(now);
+    }
+
+    ctx.clearRect(0,0,W,H);
+
+    const progress=Math.min(1,(now-anomalyStart)/650);
+    const fadeIn=progress<1?progress:1;
+
+    drawAnomalySide("L",anomalyA==="normal"?.66:.92*fadeIn,now);
+    drawAnomalySide("R",anomalyB==="normal"?.66:.92*fadeIn,now);
+
+    if(anomalyA==="explosion"||anomalyB==="explosion"){
+        drawDebris();
+    }
+
+    updateDebris(dt);
+
+    requestAnimationFrame(animateAnomalies);
+}
+
+window.addEventListener("resize",resizeCanvas);
+resizeCanvas();
+requestAnimationFrame(animateAnomalies);
+
+</script>
+</body>
+</html>
