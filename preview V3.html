@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ARCANE PORTAL</title>
+
+<style>
+:root{
+    --orange:#ff6b0a;
+    --amber:#ffad55;
+    --white:#fffaf2;
+    --gold:#ffd7aa;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+}
+
+body{
+    cursor:none;
+    position:relative;
+    user-select:none;
+}
+
+#scene{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 50% 50%,rgba(255,92,0,.055),transparent 25%),
+        radial-gradient(circle at 50% 50%,rgba(255,160,65,.025),transparent 48%),
+        #000;
+}
+
+#camera{
+    position:absolute;
+    inset:-2%;
+    transform-origin:center;
+    will-change:transform;
+}
+
+#stars,
+#particles,
+#sparks,
+#rays,
+#symbols{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
+#stars{z-index:1}
+#rays{z-index:2}
+#symbols{z-index:3}
+#particles{z-index:4}
+#sparks{z-index:8}
+
+.star{
+    position:absolute;
+    width:1px;
+    height:1px;
+    border-radius:50%;
+    background:rgba(255,220,185,.7);
+    box-shadow:0 0 5px rgba(255,130,30,.4);
+    animation:twinkle var(--d) ease-in-out infinite;
+}
+
+@keyframes twinkle{
+    0%,100%{opacity:.05;transform:scale(.4)}
+    50%{opacity:var(--o);transform:scale(1.7)}
+}
+
+.ray{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:2px;
+    height:48vh;
+    transform-origin:50% 100%;
+    background:linear-gradient(
+        to top,
+        rgba(255,142,30,0),
+        rgba(255,180,95,.02),
+        rgba(255,235,205,.13),
+        rgba(255,111,10,0)
+    );
+    filter:blur(1px);
+    opacity:.15;
+}
+
+#portal{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:min(66vmin,760px);
+    height:min(66vmin,760px);
+    transform:translate(-50%,-50%);
+    z-index:5;
+    pointer-events:none;
+}
+
+.portal-core{
+    position:absolute;
+    left:50%;
+    top:50%;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+}
+
+.core-glow{
+    width:43%;
+    height:43%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,255,255,.14) 0%,
+            rgba(255,211,164,.08) 12%,
+            rgba(255,112,10,.05) 30%,
+            rgba(255,65,0,0) 72%
+        );
+    filter:blur(7px);
+    animation:corePulse 3.7s ease-in-out infinite;
+}
+
+.core-black{
+    width:28%;
+    height:28%;
+    background:#000;
+    box-shadow:
+        0 0 20px rgba(255,110,10,.18),
+        0 0 60px rgba(255,72,0,.08),
+        inset 0 0 20px rgba(255,115,20,.07);
+}
+
+.ring{
+    position:absolute;
+    left:50%;
+    top:50%;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    border:1px solid rgba(255,155,68,.12);
+}
+
+.r1{
+    width:100%;
+    height:100%;
+    border-color:rgba(255,135,35,.08);
+    box-shadow:
+        0 0 20px rgba(255,100,10,.03),
+        inset 0 0 20px rgba(255,100,10,.025);
+    animation:spin1 48s linear infinite;
+}
+
+.r2{
+    width:91%;
+    height:91%;
+    border-style:dashed;
+    border-color:rgba(255,212,160,.055);
+    animation:spin2 34s linear infinite reverse;
+}
+
+.r3{
+    width:78%;
+    height:78%;
+    border-color:rgba(255,143,37,.12);
+    box-shadow:
+        0 0 35px rgba(255,100,0,.06),
+        inset 0 0 25px rgba(255,110,10,.04);
+    animation:spin1 25s linear infinite;
+}
+
+.r4{
+    width:66%;
+    height:66%;
+    border-style:dotted;
+    border-color:rgba(255,214,175,.09);
+    animation:spin2 18s linear infinite reverse;
+}
+
+.r5{
+    width:53%;
+    height:53%;
+    border-color:rgba(255,122,17,.12);
+    animation:spin1 13s linear infinite;
+}
+
+@keyframes spin1{
+    from{transform:translate(-50%,-50%) rotate(0deg)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+@keyframes spin2{
+    from{transform:translate(-50%,-50%) rotate(360deg)}
+    to{transform:translate(-50%,-50%) rotate(0deg)}
+}
+
+@keyframes corePulse{
+    0%,100%{
+        transform:translate(-50%,-50%) scale(.8);
+        opacity:.25;
+    }
+    50%{
+        transform:translate(-50%,-50%) scale(1.13);
+        opacity:1;
+    }
+}
+
+.tick-ring{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:97%;
+    height:97%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+}
+
+.tick{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:2px;
+    height:10px;
+    transform-origin:0 0;
+    background:rgba(255,186,116,.16);
+    box-shadow:0 0 5px rgba(255,100,0,.15);
+}
+
+.orbit{
+    position:absolute;
+    left:50%;
+    top:50%;
+    border-radius:50%;
+    border:1px solid rgba(255,169,90,.055);
+    transform:translate(-50%,-50%) rotateX(68deg);
+    box-shadow:0 0 25px rgba(255,100,0,.025);
+}
+
+.orbit.a{
+    width:84%;
+    height:30%;
+    animation:orbitA 17s linear infinite;
+}
+
+.orbit.b{
+    width:70%;
+    height:24%;
+    transform:translate(-50%,-50%) rotateX(68deg) rotateZ(60deg);
+    animation:orbitB 23s linear infinite reverse;
+}
+
+.orbit.c{
+    width:60%;
+    height:20%;
+    transform:translate(-50%,-50%) rotateX(68deg) rotateZ(-58deg);
+    animation:orbitC 19s linear infinite;
+}
+
+@keyframes orbitA{
+    from{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(0)}
+    to{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(360deg)}
+}
+
+@keyframes orbitB{
+    from{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(60deg)}
+    to{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(-300deg)}
+}
+
+@keyframes orbitC{
+    from{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(-58deg)}
+    to{transform:translate(-50%,-50%) rotateX(68deg) rotateZ(302deg)}
+}
+
+.orbit-dot{
+    position:absolute;
+    left:50%;
+    top:-4px;
+    width:7px;
+    height:7px;
+    margin-left:-3.5px;
+    border-radius:50%;
+    background:#fff8ed;
+    box-shadow:
+        0 0 6px #fff,
+        0 0 15px #ffb05c,
+        0 0 28px #ff6500;
+}
+
+#rune{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:min(27vmin,325px);
+    height:min(27vmin,325px);
+    min-width:155px;
+    min-height:155px;
+    transform:translate(-50%,-50%);
+    z-index:10;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    will-change:transform,opacity,filter;
+}
+
+#rune svg{
+    width:100%;
+    height:100%;
+    overflow:visible;
+}
+
+.rune-path{
+    fill:none;
+    stroke:url(#g);
+    stroke-width:7;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.rune-thin{
+    fill:none;
+    stroke:#fff9f0;
+    stroke-width:3.2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.rune-orange{
+    fill:none;
+    stroke:#ff7914;
+    stroke-width:4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.rune-solid{
+    fill:#fff9ef;
+}
+
+#rune.show{
+    animation:runeShow 2s cubic-bezier(.18,.8,.2,1) forwards;
+}
+
+@keyframes runeShow{
+    0%{
+        opacity:0;
+        transform:translate(-50%,-50%) scale(.62) rotate(-12deg);
+        filter:
+            drop-shadow(0 0 0 rgba(255,255,255,0))
+            drop-shadow(0 0 0 rgba(255,90,0,0));
+    }
+    12%{
+        opacity:1;
+        transform:translate(-50%,-50%) scale(1) rotate(0);
+        filter:
+            drop-shadow(0 0 4px rgba(255,255,255,1))
+            drop-shadow(0 0 10px rgba(255,226,191,1))
+            drop-shadow(0 0 22px rgba(255,155,52,.95))
+            drop-shadow(0 0 48px rgba(255,74,0,.72));
+    }
+    70%{
+        opacity:1;
+        transform:translate(-50%,-50%) scale(1) rotate(0);
+        filter:
+            drop-shadow(0 0 5px rgba(255,255,255,1))
+            drop-shadow(0 0 13px rgba(255,221,180,1))
+            drop-shadow(0 0 26px rgba(255,147,39,1))
+            drop-shadow(0 0 62px rgba(255,67,0,.78));
+    }
+    100%{
+        opacity:0;
+        transform:translate(-50%,-50%) scale(1.14) rotate(8deg);
+        filter:
+            drop-shadow(0 0 0 rgba(255,255,255,0))
+            drop-shadow(0 0 0 rgba(255,80,0,0));
+    }
+}
+
+#glyphs{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:min(54vmin,640px);
+    height:min(54vmin,640px);
+    transform:translate(-50%,-50%);
+    z-index:7;
+    pointer-events:none;
+    animation:glyphSpin 85s linear infinite;
+}
+
+@keyframes glyphSpin{
+    from{transform:translate(-50%,-50%) rotate(0)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+
+.glyph{
+    position:absolute;
+    left:50%;
+    top:50%;
+    color:rgba(255,208,166,.18);
+    font-family:Georgia,serif;
+    text-shadow:
+        0 0 6px rgba(255,255,255,.12),
+        0 0 18px rgba(255,102,0,.15);
+    opacity:.4;
+}
+
+#portalOpen{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:37%;
+    height:37%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:1px solid rgba(255,194,124,.08);
+    box-shadow:
+        0 0 15px rgba(255,120,20,.04),
+        0 0 45px rgba(255,75,0,.035),
+        inset 0 0 25px rgba(255,100,0,.03);
+    animation:openPortal 2.8s ease-in-out infinite;
+}
+
+@keyframes openPortal{
+    0%,100%{
+        transform:translate(-50%,-50%) scale(.86);
+        opacity:.4;
+    }
+    50%{
+        transform:translate(-50%,-50%) scale(1.07);
+        opacity:1;
+    }
+}
+
+.particle{
+    position:absolute;
+    width:2px;
+    height:2px;
+    border-radius:50%;
+    background:rgba(255,215,180,.7);
+    box-shadow:
+        0 0 5px rgba(255,255,255,.4),
+        0 0 12px rgba(255,120,20,.3);
+    animation:particleMove var(--dur) linear infinite;
+}
+
+@keyframes particleMove{
+    0%{
+        transform:translate3d(0,0,0) scale(.2);
+        opacity:0;
+    }
+    15%{opacity:.6}
+    50%{opacity:.25}
+    80%{opacity:.65}
+    100%{
+        transform:translate3d(var(--x),var(--y),0) scale(1.7);
+        opacity:0;
+    }
+}
+
+.spark{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:3px;
+    height:3px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:
+        0 0 6px #fff,
+        0 0 18px #ffad5c,
+        0 0 35px #ff6500;
+    opacity:0;
+    transform:translate(-50%,-50%);
+}
+
+.spark.go{
+    animation:spark 1.4s ease-out forwards;
+}
+
+@keyframes spark{
+    0%{
+        transform:translate(-50%,-50%) rotate(var(--a)) translateX(10px) scale(.2);
+        opacity:1;
+    }
+    100%{
+        transform:translate(-50%,-50%) rotate(var(--a)) translateX(var(--r)) scale(0);
+        opacity:0;
+    }
+}
+
+#pulse{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    border:1px solid rgba(255,187,115,.5);
+    transform:translate(-50%,-50%) scale(.1);
+    opacity:0;
+    z-index:6;
+    pointer-events:none;
+}
+
+#pulse.go{
+    animation:pulse 2s ease-out forwards;
+}
+
+@keyframes pulse{
+    0%{
+        transform:translate(-50%,-50%) scale(.1);
+        opacity:.7;
+    }
+    38%{opacity:.3}
+    100%{
+        transform:translate(-50%,-50%) scale(8);
+        opacity:0;
+    }
+}
+
+#distortion{
+    position:absolute;
+    inset:0;
+    z-index:30;
+    pointer-events:none;
+    opacity:.06;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(255,160,80,.12) 0px,
+            rgba(255,160,80,.12) 1px,
+            transparent 2px,
+            transparent 5px
+        );
+    mix-blend-mode:screen;
+}
+
+#vignette{
+    position:absolute;
+    inset:0;
+    z-index:40;
+    pointer-events:none;
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 34%,
+            rgba(0,0,0,.18) 58%,
+            rgba(0,0,0,.5) 100%
+        );
+}
+
+#flash{
+    position:absolute;
+    inset:0;
+    z-index:50;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255,255,255,.08),
+            rgba(255,126,25,.035) 18%,
+            transparent 48%
+        );
+    opacity:0;
+    pointer-events:none;
+}
+
+#flash.go{
+    animation:flash 1.2s ease-out forwards;
+}
+
+@keyframes flash{
+    0%{opacity:.8}
+    100%{opacity:0}
+}
+
+@media(max-width:700px){
+    #portal{
+        width:82vmin;
+        height:82vmin;
+    }
+
+    #rune{
+        width:34vmin;
+        height:34vmin;
+    }
+
+    #glyphs{
+        width:72vmin;
+        height:72vmin;
+    }
+}
+
+@media(prefers-reduced-motion:reduce){
+    *{
+        animation-duration:1ms !important;
+        animation-iteration-count:1 !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="scene">
+    <div id="camera">
+
+        <div id="stars"></div>
+        <div id="rays"></div>
+
+        <div id="symbols"></div>
+
+        <div id="portal">
+
+            <div class="ring r1"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+            <div class="ring r4"></div>
+            <div class="ring r5"></div>
+
+            <div class="tick-ring" id="ticks"></div>
+
+            <div class="orbit a">
+                <div class="orbit-dot"></div>
+            </div>
+
+            <div class="orbit b">
+                <div class="orbit-dot"></div>
+            </div>
+
+            <div class="orbit c">
+                <div class="orbit-dot"></div>
+            </div>
+
+            <div id="portalOpen"></div>
+            <div class="portal-core core-glow"></div>
+            <div class="portal-core core-black"></div>
+
+        </div>
+
+        <div id="glyphs"></div>
+
+        <div id="particles"></div>
+        <div id="sparks"></div>
+
+        <div id="pulse"></div>
+        <div id="rune"></div>
+
+    </div>
+
+    <div id="flash"></div>
+    <div id="distortion"></div>
+    <div id="vignette"></div>
+</div>
+
+<script>
+
+const runes=[
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffe0bd"/><stop offset="1" stop-color="#ff6a0c"/></linearGradient></defs>
+<path class="rune-path" d="M110 18V202M76 46L110 18L144 46M76 174L110 202L144 174M60 82L110 110L160 82M60 138L110 110L160 138"/>
+<circle class="rune-thin" cx="110" cy="110" r="19"/>
+<path class="rune-orange" d="M95 110H125M110 95V125"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff7110"/><stop offset=".5" stop-color="#ffd49e"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M42 40H178L110 110L178 180H42L110 110Z"/>
+<path class="rune-thin" d="M72 67H148M72 153H148M110 40V180"/>
+<circle class="rune-solid" cx="110" cy="110" r="7"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd4a1"/><stop offset="1" stop-color="#ff7411"/></linearGradient></defs>
+<path class="rune-path" d="M54 175L88 45L110 75L132 45L166 175M74 120H146M89 91H131"/>
+<path class="rune-thin" d="M67 175H153"/>
+<circle class="rune-orange" cx="110" cy="143" r="17"/>
+<path class="rune-solid" d="M110 132L117 143L110 154L103 143Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdfbb"/><stop offset="1" stop-color="#ff6f0d"/></linearGradient></defs>
+<path class="rune-path" d="M38 78L74 48L110 78L146 48L182 78M58 78V155M94 78V174M130 78V174M166 78V155"/>
+<path class="rune-thin" d="M58 155L94 174L130 174L166 155M74 48V26M146 48V26"/>
+<circle class="rune-solid" cx="74" cy="48" r="6"/>
+<circle class="rune-solid" cx="146" cy="48" r="6"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd3a0"/><stop offset="1" stop-color="#ff6710"/></linearGradient></defs>
+<path class="rune-path" d="M110 28L173 73L149 148L110 192L71 148L47 73Z"/>
+<path class="rune-thin" d="M110 28V192M47 73L173 73M71 148L149 148"/>
+<path class="rune-orange" d="M85 88L110 68L135 88L110 110Z"/>
+<path class="rune-orange" d="M85 132L110 152L135 132L110 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff690d"/><stop offset=".5" stop-color="#ffd6a3"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M58 178V66L110 33L162 66V178M58 102H162M76 80L110 60L144 80"/>
+<path class="rune-thin" d="M84 178V128H136V178M110 33V178"/>
+<circle class="rune-solid" cx="110" cy="102" r="8"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdbb1"/><stop offset="1" stop-color="#ff7010"/></linearGradient></defs>
+<path class="rune-path" d="M110 24L126 78L180 93L126 108L110 180L94 108L40 93L94 78Z"/>
+<circle class="rune-thin" cx="110" cy="93" r="24"/>
+<path class="rune-orange" d="M110 69V117M86 93H134"/>
+<circle class="rune-solid" cx="110" cy="93" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff680c"/><stop offset=".5" stop-color="#ffd8ad"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M54 50L110 28L166 50L150 110L166 170L110 192L54 170L70 110Z"/>
+<path class="rune-thin" d="M54 50L110 110L166 50M54 170L110 110L166 170M70 110H150"/>
+<path class="rune-orange" d="M92 72L128 72L140 110L128 148H92L80 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdfbd"/><stop offset="1" stop-color="#ff6c0e"/></linearGradient></defs>
+<path class="rune-path" d="M70 32H150L174 110L150 188H70L46 110Z"/>
+<path class="rune-thin" d="M70 32L110 76L150 32M70 188L110 144L150 188M46 110H174"/>
+<circle class="rune-orange" cx="110" cy="110" r="14"/>
+<path class="rune-solid" d="M110 99L121 110L110 121L99 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd39e"/><stop offset="1" stop-color="#ff6a0c"/></linearGradient></defs>
+<path class="rune-path" d="M42 154L73 123L52 91L89 85L79 48L110 69L141 48L131 85L168 91L147 123L178 154L137 151L110 180L83 151Z"/>
+<circle class="rune-thin" cx="110" cy="111" r="26"/>
+<path class="rune-orange" d="M98 111H122M110 99V123"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff6a0c"/><stop offset=".5" stop-color="#ffd8ac"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M110 25V195M45 60L175 160M175 60L45 160M65 28L155 192M155 28L65 192"/>
+<path class="rune-thin" d="M82 48L138 172M138 48L82 172"/>
+<circle class="rune-solid" cx="110" cy="25" r="5"/>
+<circle class="rune-solid" cx="110" cy="195" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdbb0"/><stop offset="1" stop-color="#ff6710"/></linearGradient></defs>
+<path class="rune-path" d="M48 48L110 84L172 48M48 172L110 136L172 172M62 62L110 110L158 62M62 158L110 110L158 158"/>
+<circle class="rune-thin" cx="110" cy="110" r="22"/>
+<path class="rune-orange" d="M110 79V141M79 110H141"/>
+<circle class="rune-solid" cx="110" cy="110" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff700e"/><stop offset=".5" stop-color="#ffdcb6"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M110 32C65 32 42 64 42 110S65 188 110 188 178 156 178 110 155 32 110 32Z"/>
+<path class="rune-thin" d="M68 110H152M110 64V156"/>
+<path class="rune-orange" d="M92 92L128 92L128 128L92 128Z"/>
+<path class="rune-solid" d="M110 94L126 110L110 126L94 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffd19f"/><stop offset="1" stop-color="#ff680d"/></linearGradient></defs>
+<path class="rune-path" d="M55 170L82 54L110 93L138 54L165 170M70 135L150 135M80 93H140"/>
+<path class="rune-thin" d="M55 170H165"/>
+<path class="rune-orange" d="M97 148L110 130L123 148L110 166Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff680d"/><stop offset=".5" stop-color="#ffd6a7"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M110 28L162 54V110L138 162L110 192L82 162L58 110V54Z"/>
+<path class="rune-thin" d="M58 54L110 78L162 54M58 110H162M82 162L110 140L138 162"/>
+<circle class="rune-orange" cx="110" cy="110" r="18"/>
+<path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffddb9"/><stop offset="1" stop-color="#ff6b0e"/></linearGradient></defs>
+<path class="rune-path" d="M44 70L86 42L110 72L134 42L176 70L145 103L168 143L110 178L52 143L75 103Z"/>
+<path class="rune-thin" d="M86 42L110 110L134 42M75 103L145 103M52 143L110 110L168 143"/>
+<path class="rune-orange" d="M98 110L110 98L122 110L110 122Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".48" stop-color="#ffd4a0"/><stop offset="1" stop-color="#ff650a"/></linearGradient></defs>
+<path class="rune-path" d="M110 24L150 48L174 88L174 132L150 172L110 196L70 172L46 132L46 88L70 48Z"/>
+<circle class="rune-thin" cx="110" cy="110" r="44"/>
+<path class="rune-orange" d="M110 66V154M66 110H154M79 79L141 141M141 79L79 141"/>
+<circle class="rune-solid" cx="110" cy="110" r="6"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff6b0c"/><stop offset=".5" stop-color="#ffd9ad"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M62 182V60L110 30L158 60V182M82 182V94L110 76L138 94V182"/>
+<path class="rune-thin" d="M62 116H158M82 140H138"/>
+<path class="rune-orange" d="M92 116L110 98L128 116L110 134Z"/>
+<circle class="rune-solid" cx="110" cy="116" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdfbd"/><stop offset="1" stop-color="#ff6810"/></linearGradient></defs>
+<path class="rune-path" d="M40 110L70 82L58 46L102 58L110 24L118 58L162 46L150 82L180 110L150 138L162 174L118 162L110 196L102 162L58 174L70 138Z"/>
+<circle class="rune-thin" cx="110" cy="110" r="29"/>
+<path class="rune-orange" d="M110 81V139M81 110H139"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff650a"/><stop offset=".5" stop-color="#ffd6a8"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M44 46L77 110L44 174H176L143 110L176 46Z"/>
+<path class="rune-thin" d="M77 110H143M110 46V174"/>
+<circle class="rune-orange" cx="110" cy="110" r="25"/>
+<path class="rune-solid" d="M110 95L125 110L110 125L95 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdcb8"/><stop offset="1" stop-color="#ff690c"/></linearGradient></defs>
+<path class="rune-path" d="M110 25L128 60L170 68L140 98L147 140L110 120L73 140L80 98L50 68L92 60Z"/>
+<path class="rune-thin" d="M110 120V190M77 171H143M82 153H138"/>
+<circle class="rune-orange" cx="110" cy="92" r="17"/>
+<path class="rune-solid" d="M110 82L120 92L110 102L100 92Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff650a"/><stop offset=".5" stop-color="#ffd5a5"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M52 40L84 70L110 34L136 70L168 40L158 91L186 110L158 129L168 180L136 150L110 186L84 150L52 180L62 129L34 110L62 91Z"/>
+<circle class="rune-orange" cx="110" cy="110" r="20"/>
+<path class="rune-solid" d="M110 98L122 110L110 122L98 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffddb9"/><stop offset="1" stop-color="#ff650a"/></linearGradient></defs>
+<path class="rune-path" d="M110 28L170 110L110 192L50 110Z"/>
+<path class="rune-thin" d="M110 28V192M50 110H170M75 76L145 144M145 76L75 144"/>
+<path class="rune-orange" d="M96 96L110 82L124 96L110 110L124 124L110 138L96 124L110 110Z"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#ff690b"/><stop offset=".5" stop-color="#ffd6a6"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<path class="rune-path" d="M54 58L110 30L166 58V162L110 190L54 162Z"/>
+<path class="rune-thin" d="M54 58L110 88L166 58M54 162L110 132L166 162M110 30V190"/>
+<path class="rune-orange" d="M92 92H128L142 110L128 128H92L78 110Z"/>
+<circle class="rune-solid" cx="110" cy="110" r="5"/>
+</svg>`,
+
+`<svg viewBox="0 0 220 220">
+<defs><linearGradient id="g"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ffdcb5"/><stop offset="1" stop-color="#ff6c0c"/></linearGradient></defs>
+<path class="rune-path" d="M110 22L140 54L178 74L158 110L178 146L140 166L110 198L80 166L42 146L62 110L42 74L80 54Z"/>
+<circle class="rune-thin" cx="110" cy="110" r="33"/>
+<path class="rune-orange" d="M110 78L124 96L146 100L130 116L134 139L110 128L86 139L90 116L74 100L96 96Z"/>
+<circle class="rune-solid" cx="110" cy="110" r="5"/>
+</svg>`
+
+];
+
+const glyphSet=[
+    "ᚦ","ᛉ","ᚨ","ᛟ","ᚱ","ᚲ","ᛏ","ᚹ",
+    "ϟ","Ψ","Ж","Ȝ","Ƶ","ƛ","⟐","⟁",
+    "⟡","◈","⊙","⌁","⋔","ᛝ","ᚾ","ᛒ",
+    "⟁","⌬","⟟","⧫","◌","◉","⋈","⟡"
+];
+
+const rune=document.getElementById("rune");
+const pulse=document.getElementById("pulse");
+const flash=document.getElementById("flash");
+const sparks=document.getElementById("sparks");
+const ticks=document.getElementById("ticks");
+const symbols=document.getElementById("symbols");
+const particles=document.getElementById("particles");
+const stars=document.getElementById("stars");
+const rays=document.getElementById("rays");
+const glyphs=document.getElementById("glyphs");
+const camera=document.getElementById("camera");
+
+let runeIndex=0;
+
+for(let i=0;i<100;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    s.style.left=Math.random()*100+"%";
+    s.style.top=Math.random()*100+"%";
+    s.style.setProperty("--d",(2+Math.random()*6)+"s");
+    s.style.setProperty("--o",(0.15+Math.random()*.65).toFixed(2));
+    s.style.animationDelay=(-Math.random()*8)+"s";
+    stars.appendChild(s);
+}
+
+for(let i=0;i<34;i++){
+    const ray=document.createElement("div");
+    ray.className="ray";
+    ray.style.transform=
+        `translate(-50%,-100%) rotate(${i*(360/34)}deg)`;
+    ray.style.opacity=(.04+Math.random()*.12).toFixed(3);
+    rays.appendChild(ray);
+}
+
+for(let i=0;i<72;i++){
+    const p=document.createElement("div");
+    p.className="particle";
+    p.style.left=Math.random()*100+"%";
+    p.style.top=Math.random()*100+"%";
+    p.style.setProperty("--x",((Math.random()-.5)*300)+"px");
+    p.style.setProperty("--y",(-50-Math.random()*350)+"px");
+    p.style.setProperty("--dur",(5+Math.random()*12)+"s");
+    p.style.animationDelay=(-Math.random()*15)+"s";
+    const size=.7+Math.random()*2;
+    p.style.width=size+"px";
+    p.style.height=size+"px";
+    particles.appendChild(p);
+}
+
+for(let i=0;i<40;i++){
+    const t=document.createElement("div");
+    t.className="tick";
+    const a=i*(360/40);
+    t.style.transform=
+        `translate(-50%,-50%) rotate(${a}deg) translateY(-48%)`;
+    ticks.appendChild(t);
+}
+
+glyphSet.forEach((g,i)=>{
+    const el=document.createElement("div");
+    el.className="glyph";
+    el.textContent=g;
+
+    const angle=i*(360/glyphSet.length);
+    const radius=44+(i%4)*2;
+
+    el.style.fontSize=(13+(i%5)*2)+"px";
+    el.style.transform=
+        `translate(-50%,-50%) rotate(${angle}deg) translateY(-${radius}%) rotate(${-angle}deg)`;
+
+    el.style.opacity=(.08+(i%5)*.025).toFixed(3);
+    glyphs.appendChild(el);
+});
+
+glyphSet.slice(0,18).forEach((g,i)=>{
+    const el=document.createElement("div");
+    el.className="glyph";
+    el.textContent=g;
+
+    const angle=i*(360/18)+10;
+    const radius=34+(i%3)*2;
+
+    el.style.fontSize=(10+(i%4)*2)+"px";
+    el.style.color="rgba(255,170,95,.09)";
+    el.style.transform=
+        `translate(-50%,-50%) rotate(${angle}deg) translateY(-${radius}%) rotate(${-angle}deg)`;
+
+    symbols.appendChild(el);
+});
+
+function createSpark(){
+    const s=document.createElement("div");
+    s.className="spark";
+    s.style.setProperty("--a",(Math.random()*360)+"deg");
+    s.style.setProperty("--r",(120+Math.random()*280)+"px");
+    sparks.appendChild(s);
+
+    requestAnimationFrame(()=>{
+        s.classList.add("go");
+    });
+
+    setTimeout(()=>s.remove(),1500);
+}
+
+function energyBurst(){
+    pulse.classList.remove("go");
+    void pulse.offsetWidth;
+    pulse.classList.add("go");
+
+    flash.classList.remove("go");
+    void flash.offsetWidth;
+    flash.classList.add("go");
+
+    for(let i=0;i<10;i++){
+        setTimeout(createSpark,i*45);
+    }
+}
+
+function showRune(){
+    rune.classList.remove("show");
+    void rune.offsetWidth;
+
+    rune.innerHTML=runes[runeIndex];
+    rune.classList.add("show");
+
+    energyBurst();
+
+    runeIndex=(runeIndex+1)%runes.length;
+}
+
+showRune();
+setInterval(showRune,2000);
+
+let mx=0;
+let my=0;
+let tx=0;
+let ty=0;
+
+window.addEventListener("mousemove",e=>{
+    tx=(e.clientX/window.innerWidth-.5)*2;
+    ty=(e.clientY/window.innerHeight-.5)*2;
+});
+
+let last=performance.now();
+
+function cameraLoop(now){
+    const dt=now-last;
+    last=now;
+
+    mx+=(tx-mx)*.018;
+    my+=(ty-my)*.018;
+
+    const t=now*.00025;
+
+    const breathe=Math.sin(t)*.003;
+    const driftX=Math.sin(t*1.17)*1.8;
+    const driftY=Math.cos(t*.91)*1.8;
+
+    camera.style.transform=
+        `translate3d(${driftX+mx*3}px,${driftY+my*3}px,0) scale(${1.005+breathe})`;
+
+    requestAnimationFrame(cameraLoop);
+}
+
+requestAnimationFrame(cameraLoop);
+
+let pulseTimer=0;
+
+setInterval(()=>{
+    if(Math.random()>.35){
+        createSpark();
+    }
+},430);
+
+document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){
+        document.body.style.cursor="default";
+    }else{
+        document.body.style.cursor="none";
+    }
+});
+
+</script>
+
+</body>
+</html>
